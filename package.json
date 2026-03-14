@@ -1,0 +1,29 @@
+{
+	"name": "roamvault",
+	"type": "module",
+	"version": "0.0.0",
+	"private": true,
+	"packageManager": "pnpm@10.30.3",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview",
+		"check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix"
+	},
+	"devDependencies": {
+		"@antfu/eslint-config": "^7.7.2",
+		"@sveltejs/vite-plugin-svelte": "^7.0.0",
+		"@tsconfig/svelte": "^5.0.8",
+		"@types/node": "^24.12.0",
+		"eslint": "^10.0.3",
+		"eslint-plugin-format": "^2.0.1",
+		"eslint-plugin-svelte": "^3.15.2",
+		"svelte": "^5.53.7",
+		"svelte-check": "^4.4.5",
+		"svelte-eslint-parser": "^1.6.0",
+		"typescript": "~5.9.3",
+		"vite": "^8.0.0"
+	}
+}
