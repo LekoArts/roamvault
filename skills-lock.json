@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "svelte-core-bestpractices": {
+      "source": "sveltejs/ai-tools",
+      "sourceType": "github",
+      "computedHash": "bec11e369679027edf9d4acbe6d9788f8da33dc14b48b874f231d3ba13705324"
+    },
+    "vite": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "computedHash": "867ff66238f3152e9c494339ad08dc432dd0df5bcf5cc7a00b61a72b580eb908"
+    },
+    "web-design-guidelines": {
+      "source": "vercel-labs/agent-skills",
+      "sourceType": "github",
+      "computedHash": "a6a44d5498f7e8f68289902f3dedfc6f38ae0cee1e96527c80724cf27f727c2a"
+    }
+  }
+}
