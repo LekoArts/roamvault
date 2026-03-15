@@ -8,7 +8,7 @@ export async function saveVaultHandle(handle: FileSystemDirectoryHandle): Promis
 
 export async function loadVaultHandle(): Promise<FileSystemDirectoryHandle | null> {
 	const handle = await get<FileSystemDirectoryHandle>(VAULT_HANDLE_KEY)
-	return handle ?? null
+	return handle || null
 }
 
 export async function clearVaultHandle(): Promise<void> {

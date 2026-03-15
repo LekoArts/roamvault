@@ -3,12 +3,12 @@ import type { TemplateValues } from '../templates/engine'
 import { parseFrontmatter } from '../parser/frontmatter'
 import { listDirectory, openVault as openVaultPicker, readFile, verifyPermission, writeFile } from '../services/vault'
 import { clearVaultHandle, loadVaultHandle, saveVaultHandle } from '../services/vault-store'
-import { detectTripTypeFromFile, getTargetPath, getTemplateForItemType, getTemplateForTripType, loadTemplates, processTemplate } from '../templates/engine'
+import { detectTripTypeFromFile, getTargetPath, getTemplate, loadTemplates, processTemplate } from '../templates/engine'
 
 let vaultHandle = $state<FileSystemDirectoryHandle | null>(null)
 let vaultName = $state('')
-let travelTree = $state<TravelTree>({})
-let templates = $state<TemplateDefinition[]>([])
+let travelTree = $state.raw<TravelTree>({})
+let templates = $state.raw<TemplateDefinition[]>([])
 let loading = $state(false)
 let error = $state<string | null>(null)
 let hasTravelFolder = $state(false)
@@ -216,7 +216,7 @@ return false
 		if (!vaultHandle)
 return
 
-		const template = getTemplateForTripType(templates, type)
+		const template = getTemplate(templates, type)
 		if (!template)
 throw new Error(`Template not found for ${type}`)
 
@@ -240,7 +240,7 @@ throw new Error(`Template not found for ${type}`)
 		if (!vaultHandle)
 return
 
-		const template = getTemplateForItemType(templates, itemType)
+		const template = getTemplate(templates, itemType)
 		if (!template)
 throw new Error(`Template not found for ${itemType}`)
 

@@ -2,7 +2,7 @@
 	import type { TripType } from '../models/types'
 	import { uiStore } from '../stores/ui.svelte'
 	import { vaultStore } from '../stores/vault.svelte'
-	import { getEditableFields, getTemplateForTripType } from '../templates/engine'
+	import { getEditableFields, getTemplate } from '../templates/engine'
 	import FormField from './FormField.svelte'
 	import Modal from './Modal.svelte'
 
@@ -17,7 +17,7 @@
 	})()
 	let startDate = $state(todayStr)
 
-	const template = $derived(getTemplateForTripType(vaultStore.templates, tripType))
+	const template = $derived(getTemplate(vaultStore.templates, tripType))
 	const fields = $derived(template ? getEditableFields(template, false) : [])
 
 	// Mutable store for user edits, keyed by field name

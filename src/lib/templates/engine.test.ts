@@ -2,12 +2,10 @@ import type { TemplateDefinition } from '../models/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { parseFrontmatter } from '../parser/frontmatter'
 import {
-	detectTripType,
 	detectTripTypeFromFile,
 	getEditableFields,
 	getTargetPath,
-	getTemplateForItemType,
-	getTemplateForTripType,
+	getTemplate,
 	loadTemplates,
 	processTemplate,
 } from './engine'
@@ -135,20 +133,6 @@ describe('loadTemplates', () => {
 	})
 })
 
-describe('detectTripType', () => {
-	it('returns Travel_Simple when base does not include Travel.base', () => {
-		expect(detectTripType({ base: '[[Other]]' })).toBe('Travel_Simple')
-	})
-
-	it('returns Travel_Simple when base includes Travel.base (fallback)', () => {
-		expect(detectTripType({ base: '[[Travel.base]]' })).toBe('Travel_Simple')
-	})
-
-	it('returns Travel_Simple when no base property', () => {
-		expect(detectTripType({})).toBe('Travel_Simple')
-	})
-})
-
 describe('detectTripTypeFromFile', () => {
 	it('returns Travel_Simple when base does not include Travel.base', () => {
 		expect(detectTripTypeFromFile('content', { base: '[[Other]]' })).toBe('Travel_Simple')
@@ -183,51 +167,42 @@ describe('detectTripTypeFromFile', () => {
 	})
 })
 
-describe('getTemplateForTripType', () => {
+describe('getTemplate', () => {
 	const templates: TemplateDefinition[] = [
 		makeTemplate('Travel_Simple', SIMPLE_TEMPLATE),
 		makeTemplate('Travel_Advanced', ADVANCED_TEMPLATE),
 		makeTemplate('Travel_Roadtrip', ROADTRIP_TEMPLATE),
-	]
-
-	it('finds Travel_Simple template', () => {
-		const t = getTemplateForTripType(templates, 'Travel_Simple')
-		expect(t).toBeDefined()
-		expect(t!.type).toBe('Travel_Simple')
-	})
-
-	it('finds Travel_Advanced template', () => {
-		const t = getTemplateForTripType(templates, 'Travel_Advanced')
-		expect(t).toBeDefined()
-		expect(t!.type).toBe('Travel_Advanced')
-	})
-
-	it('returns undefined for missing template', () => {
-		expect(getTemplateForTripType([], 'Travel_Simple')).toBeUndefined()
-	})
-})
-
-describe('getTemplateForItemType', () => {
-	const templates: TemplateDefinition[] = [
 		makeTemplate('Activity', ACTIVITY_TEMPLATE),
 		makeTemplate('Planning', PLANNING_TEMPLATE),
 		makeTemplate('Stop', STOP_TEMPLATE),
 	]
 
+	it('finds Travel_Simple template', () => {
+		const t = getTemplate(templates, 'Travel_Simple')
+		expect(t).toBeDefined()
+		expect(t!.type).toBe('Travel_Simple')
+	})
+
+	it('finds Travel_Advanced template', () => {
+		const t = getTemplate(templates, 'Travel_Advanced')
+		expect(t).toBeDefined()
+		expect(t!.type).toBe('Travel_Advanced')
+	})
+
 	it('finds Activity template', () => {
-		expect(getTemplateForItemType(templates, 'Activity')?.type).toBe('Activity')
+		expect(getTemplate(templates, 'Activity')?.type).toBe('Activity')
 	})
 
 	it('finds Planning template', () => {
-		expect(getTemplateForItemType(templates, 'Planning')?.type).toBe('Planning')
+		expect(getTemplate(templates, 'Planning')?.type).toBe('Planning')
 	})
 
 	it('finds Stop template', () => {
-		expect(getTemplateForItemType(templates, 'Stop')?.type).toBe('Stop')
+		expect(getTemplate(templates, 'Stop')?.type).toBe('Stop')
 	})
 
 	it('returns undefined for missing template', () => {
-		expect(getTemplateForItemType([], 'Activity')).toBeUndefined()
+		expect(getTemplate([], 'Travel_Simple')).toBeUndefined()
 	})
 })
 

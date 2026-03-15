@@ -2,7 +2,7 @@
 	import { untrack } from 'svelte'
 	import { uiStore } from '../stores/ui.svelte'
 	import { vaultStore } from '../stores/vault.svelte'
-	import { getEditableFields, getTemplateForItemType } from '../templates/engine'
+	import { getEditableFields, getTemplate } from '../templates/engine'
 	import FormField from './FormField.svelte'
 	import Modal from './Modal.svelte'
 
@@ -12,7 +12,7 @@
 	const itemType = $derived(uiStore.itemTypeToCreate!)
 	const trip = $derived(uiStore.selectedTrip!)
 
-	const template = $derived(itemType ? getTemplateForItemType(vaultStore.templates, itemType) : undefined)
+	const template = $derived(itemType ? getTemplate(vaultStore.templates, itemType) : undefined)
 	const fields = $derived(template ? getEditableFields(template, true) : [])
 	const tripStart = $derived(typeof trip.frontmatter.startDate === 'string' ? trip.frontmatter.startDate : '')
 	const tripEnd = $derived(typeof trip.frontmatter.endDate === 'string' ? trip.frontmatter.endDate : '')

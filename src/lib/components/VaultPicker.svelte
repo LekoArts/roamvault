@@ -5,7 +5,7 @@
 
 	// 'checking' = silent IDB lookup, 'opening' = user sees spinner, 'ready' = show full UI
 	let phase = $state<'checking' | 'opening' | 'ready'>('checking')
-	const unsupported = $state(!('showDirectoryPicker' in window))
+	const unsupported = !('showDirectoryPicker' in window)
 
 	async function handleOpen() {
 		phase = 'opening'

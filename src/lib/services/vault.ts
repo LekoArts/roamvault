@@ -1,6 +1,5 @@
 export async function openVault(): Promise<FileSystemDirectoryHandle> {
-	const handle = await window.showDirectoryPicker({ mode: 'readwrite' })
-	return handle
+	return window.showDirectoryPicker({ mode: 'readwrite' })
 }
 
 export async function verifyPermission(handle: FileSystemDirectoryHandle): Promise<boolean> {

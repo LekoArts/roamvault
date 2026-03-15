@@ -25,19 +25,6 @@ export async function loadTemplates(
 	return templates
 }
 
-export function detectTripType(frontmatter: Record<string, unknown>): TripType {
-	const base = String(frontmatter.base ?? '')
-
-	if (base.includes('Travel.base'))
-		return inferFromContent(frontmatter)
-
-	return 'Travel_Simple'
-}
-
-function inferFromContent(_frontmatter: Record<string, unknown>): TripType {
-	return 'Travel_Simple'
-}
-
 export function detectTripTypeFromFile(
 	content: string,
 	frontmatter: Record<string, unknown>,
@@ -56,18 +43,11 @@ export function detectTripTypeFromFile(
 	return 'Travel_Simple'
 }
 
-export function getTemplateForTripType(
+export function getTemplate(
 	templates: TemplateDefinition[],
-	tripType: TripType,
+	type: TripType | ItemType,
 ): TemplateDefinition | undefined {
-	return templates.find(t => t.type === tripType)
-}
-
-export function getTemplateForItemType(
-	templates: TemplateDefinition[],
-	itemType: ItemType,
-): TemplateDefinition | undefined {
-	return templates.find(t => t.type === itemType)
+	return templates.find(t => t.type === type)
 }
 
 function formatDate(date: Date): string {
@@ -111,10 +91,7 @@ export function processTemplate(
 				continue
 			data[key] = v
 		}
-		else if (key === 'startDate' && data[key] === '{{date}}') {
-			data[key] = formatDate(new Date())
-		}
-		else if (key === 'endDate' && data[key] === '{{date}}') {
+		else if ((key === 'startDate' || key === 'endDate') && data[key] === '{{date}}') {
 			data[key] = formatDate(new Date())
 		}
 		else if (key === 'Done') {
