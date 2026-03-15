@@ -10,7 +10,9 @@
 		"preview": "vite preview",
 		"check": "svelte-check --tsconfig ./tsconfig.app.json && tsc -p tsconfig.node.json",
 		"lint": "eslint .",
-		"lint:fix": "eslint . --fix"
+		"lint:fix": "eslint . --fix",
+		"test": "vitest",
+		"coverage": "vitest run --coverage"
 	},
 	"dependencies": {
 		"idb-keyval": "^6.2.2"
@@ -21,6 +23,7 @@
 		"@sveltejs/vite-plugin-svelte": "^7.0.0",
 		"@tsconfig/svelte": "^5.0.8",
 		"@types/node": "^24.12.0",
+		"@vitest/coverage-v8": "^4.1.0",
 		"eslint": "^10.0.3",
 		"eslint-plugin-format": "^2.0.1",
 		"eslint-plugin-svelte": "^3.15.2",
