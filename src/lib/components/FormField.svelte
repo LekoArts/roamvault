@@ -126,7 +126,7 @@
 	.form-field {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-3);
 	}
 
 	label {
@@ -137,13 +137,13 @@
 
 	.required {
 		color: var(--color-danger);
-		margin-left: 2px;
+		margin-left: var(--space-1);
 	}
 
 	input[type='text'],
 	input[type='url'],
 	input[type='date'] {
-		padding: 8px 12px;
+		padding: var(--space-4) var(--space-6);
 		border: 1px solid var(--color-border);
 		border-radius: 8px;
 		background: var(--color-bg-input);
@@ -163,7 +163,7 @@
 	.checkbox-label {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-4);
 		cursor: pointer;
 		font-size: 0.9375rem;
 		color: var(--color-text);

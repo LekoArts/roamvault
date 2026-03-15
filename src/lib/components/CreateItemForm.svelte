@@ -130,24 +130,24 @@
 	form {
 		display: flex;
 		flex-direction: column;
-		gap: 20px;
+		gap: var(--space-10);
 	}
 
 	.form-fields {
 		display: flex;
 		flex-direction: column;
-		gap: 16px;
+		gap: var(--space-8);
 	}
 
 	.form-actions {
 		display: flex;
 		justify-content: flex-end;
-		gap: 8px;
-		padding-top: 4px;
+		gap: var(--space-4);
+		padding-top: var(--space-2);
 	}
 
 	.btn-cancel {
-		padding: 8px 18px;
+		padding: var(--space-4) var(--space-8);
 		background: none;
 		border: 1px solid var(--color-border);
 		border-radius: 8px;
@@ -162,7 +162,7 @@
 	}
 
 	.btn-save {
-		padding: 8px 18px;
+		padding: var(--space-4) var(--space-8);
 		background: var(--color-primary);
 		color: white;
 		border: none;

@@ -107,20 +107,20 @@
 
 <style>
 	.trip-detail {
-		max-width: 720px;
+		max-width: var(--max-width);
 		margin: 0 auto;
-		padding: 20px;
+		padding: var(--space-10);
 	}
 
 	.detail-header {
-		margin-bottom: 20px;
+		margin-bottom: var(--space-10);
 	}
 
 	.btn-back {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		padding: 8px 14px;
+		gap: var(--space-3);
+		padding: var(--space-4) var(--space-6);
 		background: none;
 		border: 1px solid var(--color-border);
 		border-radius: 8px;
@@ -139,19 +139,19 @@
 		background-size: cover;
 		background-position: center;
 		border-radius: 12px;
-		margin-bottom: 24px;
+		margin-bottom: var(--space-12);
 	}
 
 	.trip-content {
 		display: flex;
 		flex-direction: column;
-		gap: 20px;
+		gap: var(--space-10);
 	}
 
 	.trip-title-row {
 		display: flex;
 		align-items: center;
-		gap: 12px;
+		gap: var(--space-6);
 		flex-wrap: wrap;
 	}
 
@@ -164,7 +164,7 @@
 	.type-label {
 		font-size: 0.75rem;
 		font-weight: 600;
-		padding: 4px 10px;
+		padding: var(--space-2) var(--space-5);
 		border-radius: 6px;
 		text-transform: uppercase;
 		letter-spacing: 0.03em;
@@ -189,13 +189,13 @@
 	.trip-meta {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 16px;
+		gap: var(--space-8);
 	}
 
 	.meta-item {
 		display: flex;
 		align-items: center;
-		gap: 6px;
+		gap: var(--space-3);
 		font-size: 0.9375rem;
 		color: var(--color-text-muted);
 	}
@@ -203,21 +203,21 @@
 	.sub-sections {
 		display: flex;
 		flex-direction: column;
-		gap: 28px;
-		margin-top: 8px;
+		gap: var(--space-14);
+		margin-top: var(--space-4);
 	}
 
 	.sub-section-header {
 		display: flex;
 		flex-direction: column;
-		gap: 12px;
+		gap: var(--space-6);
 	}
 
 	.btn-add {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		padding: 6px 14px;
+		gap: var(--space-3);
+		padding: var(--space-3) var(--space-6);
 		background: none;
 		border: 1px dashed var(--color-border);
 		border-radius: 8px;

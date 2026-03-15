@@ -84,14 +84,14 @@
 	}
 
 	.trip-info {
-		padding: 16px;
+		padding: var(--space-8);
 	}
 
 	.trip-header {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 8px;
+		gap: var(--space-4);
 	}
 
 	h3 {
@@ -107,7 +107,7 @@
 	.badge {
 		font-size: 0.6875rem;
 		font-weight: 600;
-		padding: 3px 8px;
+		padding: var(--space-2) var(--space-4);
 		border-radius: 6px;
 		text-transform: uppercase;
 		letter-spacing: 0.03em;
@@ -130,13 +130,13 @@
 	}
 
 	.trip-dates {
-		margin: 8px 0 0;
+		margin: var(--space-4) 0 0;
 		font-size: 0.875rem;
 		color: var(--color-text-muted);
 	}
 
 	.trip-items {
-		margin: 4px 0 0;
+		margin: var(--space-2) 0 0;
 		font-size: 0.8125rem;
 		color: var(--color-text-muted);
 	}

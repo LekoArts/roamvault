@@ -88,24 +88,24 @@
 
 <style>
 	.travel-list {
-		max-width: 960px;
+		max-width: var(--max-width);
 		margin: 0 auto;
-		padding: 20px;
+		padding: var(--space-10);
 	}
 
 	.header {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		margin-bottom: 32px;
-		gap: 16px;
+		margin-bottom: var(--space-16);
+		gap: var(--space-8);
 		flex-wrap: wrap;
 	}
 
 	.header-left h1 {
 		display: flex;
 		align-items: center;
-		gap: 10px;
+		gap: var(--space-5);
 		font-size: 1.375rem;
 		font-weight: 700;
 		margin: 0;
@@ -114,10 +114,10 @@
 	.status-badge {
 		display: inline-flex;
 		align-items: center;
-		gap: 4px;
+		gap: var(--space-2);
 		font-size: 0.75rem;
 		font-weight: 500;
-		padding: 2px 8px;
+		padding: var(--space-1) var(--space-4);
 		border-radius: 6px;
 		font-family: var(--font-mono, monospace);
 	}
@@ -135,14 +135,14 @@
 	.header-actions {
 		display: flex;
 		align-items: center;
-		gap: 8px;
+		gap: var(--space-4);
 	}
 
 	.btn-new {
 		display: inline-flex;
 		align-items: center;
-		gap: 6px;
-		padding: 8px 16px;
+		gap: var(--space-3);
+		padding: var(--space-4) var(--space-8);
 		background: var(--color-primary);
 		color: white;
 		border: none;
@@ -163,13 +163,13 @@
 	}
 
 	.btn-large {
-		padding: 10px 20px;
+		padding: var(--space-5) var(--space-10);
 		font-size: 1rem;
-		gap: 8px;
+		gap: var(--space-4);
 	}
 
 	.btn-secondary {
-		padding: 8px 16px;
+		padding: var(--space-4) var(--space-8);
 		background: none;
 		border: 1px solid var(--color-border);
 		border-radius: 8px;
@@ -186,42 +186,42 @@
 	.year-heading {
 		font-size: 1.125rem;
 		font-weight: 600;
-		margin: 0 0 16px;
+		margin: 0 0 var(--space-8);
 		color: var(--color-text-muted);
 	}
 
 	.year-section {
-		margin-bottom: 36px;
+		margin-bottom: var(--space-16);
 	}
 
 	.trip-grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-		gap: 16px;
+		gap: var(--space-8);
 	}
 
 	.empty-state {
 		text-align: center;
-		padding: 60px 20px;
+		padding: var(--space-30) var(--space-10);
 		color: var(--color-text-muted);
 	}
 
 	.empty-state h2 {
-		margin: 0 0 8px;
+		margin: 0 0 var(--space-4);
 		font-size: 1.25rem;
 		color: var(--color-text);
 	}
 
 	.empty-state p {
-		margin: 0 0 24px;
+		margin: 0 0 var(--space-12);
 	}
 
 	.loading {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 12px;
-		padding: 60px 20px;
+		gap: var(--space-6);
+		padding: var(--space-30) var(--space-10);
 	}
 
 	.spinner {
@@ -239,7 +239,7 @@
 
 	.error-message {
 		text-align: center;
-		padding: 40px 20px;
+		padding: var(--space-20) var(--space-10);
 		color: var(--color-danger);
 	}
 </style>

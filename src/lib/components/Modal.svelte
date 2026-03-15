@@ -78,14 +78,14 @@
 	}
 
 	.modal-content {
-		padding: 24px;
+		padding: var(--space-12);
 	}
 
 	.modal-header {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		margin-bottom: 20px;
+		margin-bottom: var(--space-10);
 	}
 
 	.modal-header h2 {
@@ -99,7 +99,7 @@
 		border: none;
 		cursor: pointer;
 		color: var(--color-text-muted);
-		padding: 4px;
+		padding: var(--space-2);
 		border-radius: 6px;
 		display: flex;
 		align-items: center;
@@ -115,6 +115,6 @@
 	.modal-body {
 		display: flex;
 		flex-direction: column;
-		gap: 16px;
+		gap: var(--space-8);
 	}
 </style>

@@ -58,7 +58,7 @@
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
 		color: var(--color-text-muted);
-		margin: 0 0 12px;
+		margin: 0 0 var(--space-6);
 	}
 
 	.empty {
@@ -74,15 +74,15 @@
 		padding: 0;
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-3);
 	}
 
 	.item {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 12px;
-		padding: 10px 14px;
+		gap: var(--space-6);
+		padding: var(--space-5) var(--space-6);
 		background: var(--color-bg-input);
 		border-radius: 8px;
 		font-size: 0.9375rem;
@@ -99,14 +99,14 @@
 	.item-meta {
 		display: flex;
 		align-items: center;
-		gap: 10px;
+		gap: var(--space-5);
 		font-size: 0.8125rem;
 		color: var(--color-text-muted);
 	}
 
 	.meta-tag {
 		background: var(--color-bg-hover);
-		padding: 2px 8px;
+		padding: var(--space-1) var(--space-4);
 		border-radius: 4px;
 	}
 </style>

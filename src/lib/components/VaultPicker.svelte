@@ -81,7 +81,7 @@
 		align-items: center;
 		justify-content: center;
 		min-height: 100vh;
-		padding: 20px;
+		padding: var(--space-10);
 	}
 
 	.vault-picker-inner {
@@ -98,26 +98,26 @@
 		border-radius: 20px;
 		background: var(--color-primary);
 		color: white;
-		margin-bottom: 24px;
+		margin-bottom: var(--space-12);
 	}
 
 	h1 {
 		font-size: 2rem;
 		font-weight: 700;
-		margin: 0 0 8px;
+		margin: 0 0 var(--space-4);
 	}
 
 	.tagline {
 		color: var(--color-text-muted);
-		margin: 0 0 32px;
+		margin: 0 0 var(--space-16);
 		font-size: 1.0625rem;
 	}
 
 	.open-vault-btn {
 		display: inline-flex;
 		align-items: center;
-		gap: 10px;
-		padding: 12px 28px;
+		gap: var(--space-5);
+		padding: var(--space-6) var(--space-14);
 		background: var(--color-primary);
 		color: white;
 		border: none;
@@ -133,21 +133,21 @@
 	}
 
 	.unsupported {
-		padding: 20px;
+		padding: var(--space-10);
 		background: var(--color-bg-hover);
 		border-radius: 10px;
 		color: var(--color-text-muted);
 	}
 
 	.unsupported p {
-		margin: 0 0 8px;
+		margin: 0 0 var(--space-4);
 	}
 
 	.loading {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 12px;
+		gap: var(--space-6);
 	}
 
 	.spinner {
@@ -164,7 +164,7 @@
 	}
 
 	.error {
-		margin-top: 16px;
+		margin-top: var(--space-8);
 		color: var(--color-danger);
 		font-size: 0.875rem;
 	}

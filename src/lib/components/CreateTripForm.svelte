@@ -133,19 +133,19 @@
 	form {
 		display: flex;
 		flex-direction: column;
-		gap: 20px;
+		gap: var(--space-10);
 	}
 
 	.form-fields {
 		display: flex;
 		flex-direction: column;
-		gap: 16px;
+		gap: var(--space-8);
 	}
 
 	.form-field {
 		display: flex;
 		flex-direction: column;
-		gap: 6px;
+		gap: var(--space-3);
 	}
 
 	.form-field label {
@@ -155,8 +155,8 @@
 	}
 
 	select {
-		padding: 8px 12px;
-		padding-right: 32px;
+		padding: var(--space-4) var(--space-6);
+		padding-right: var(--space-16);
 		border: 1px solid var(--color-border);
 		border-radius: 8px;
 		background-color: var(--color-bg-input);
@@ -168,7 +168,7 @@
 		appearance: none;
 		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 		background-repeat: no-repeat;
-		background-position: right 10px center;
+		background-position: right var(--space-5) center;
 	}
 
 	select:focus-visible {
@@ -180,12 +180,12 @@
 	.form-actions {
 		display: flex;
 		justify-content: flex-end;
-		gap: 8px;
-		padding-top: 4px;
+		gap: var(--space-4);
+		padding-top: var(--space-2);
 	}
 
 	.btn-cancel {
-		padding: 8px 18px;
+		padding: var(--space-4) var(--space-8);
 		background: none;
 		border: 1px solid var(--color-border);
 		border-radius: 8px;
@@ -200,7 +200,7 @@
 	}
 
 	.btn-save {
-		padding: 8px 18px;
+		padding: var(--space-4) var(--space-8);
 		background: var(--color-primary);
 		color: white;
 		border: none;
