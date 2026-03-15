@@ -83,7 +83,7 @@
 
 			<div class='form-field'>
 				<label for='trip-type'>Trip Type</label>
-				<select id='trip-type' bind:value={tripType}>
+				<select id='trip-type' name='trip-type' bind:value={tripType}>
 					<option value='Travel_Simple'>Simple Trip</option>
 					<option value='Travel_Advanced'>Advanced Trip</option>
 					<option value='Travel_Roadtrip'>Roadtrip</option>
@@ -104,7 +104,7 @@
 						label={field.key}
 						type={field.type}
 						initialValue={defaultFor(field)}
-						placeholder={field.type === 'url' ? 'https://...' : ''}
+						placeholder={field.type === 'url' ? 'https://' : ''}
 						min={field.key === 'endDate' ? startDate : ''}
 						onchange={(v) => {
 							formValues[field.key] = v
@@ -123,7 +123,7 @@
 		<div class='form-actions'>
 			<button type='button' class='btn-cancel' onclick={() => uiStore.closeModal()}>Cancel</button>
 			<button type='submit' class='btn-save' disabled={saving || !tripName.trim()}>
-				{saving ? 'Saving...' : 'Save'}
+				{saving ? 'Saving' : 'Save'}
 			</button>
 		</div>
 	</form>
@@ -159,7 +159,7 @@
 		padding-right: 32px;
 		border: 1px solid var(--color-border);
 		border-radius: 8px;
-		background: var(--color-bg-input);
+		background-color: var(--color-bg-input);
 		color: var(--color-text);
 		font-size: 0.9375rem;
 		font-family: inherit;
@@ -171,8 +171,10 @@
 		background-position: right 10px center;
 	}
 
-	select:focus {
+	select:focus-visible {
 		border-color: var(--color-primary);
+		outline: 2px solid var(--color-primary);
+		outline-offset: -1px;
 	}
 
 	.form-actions {

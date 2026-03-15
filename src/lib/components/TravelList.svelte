@@ -27,21 +27,21 @@
 	<header class='header'>
 		<div class='header-left'>
 			<h1>
-				<Folder size={22} />
+				<Folder size={22} aria-hidden='true' />
 				{vaultStore.name}
 			</h1>
 		</div>
 		<div class='header-actions'>
 			<span class='status-badge' class:ok={vaultStore.hasTravelFolder} class:missing={!vaultStore.hasTravelFolder}>
-				{#if vaultStore.hasTravelFolder}<Check size={12} />{:else}<TriangleAlert size={12} />{/if}
+				{#if vaultStore.hasTravelFolder}<Check size={12} aria-hidden='true' />{:else}<TriangleAlert size={12} aria-hidden='true' />{/if}
 				Travel
 			</span>
 			<span class='status-badge' class:ok={vaultStore.hasTemplatesFolder} class:missing={!vaultStore.hasTemplatesFolder}>
-				{#if vaultStore.hasTemplatesFolder}<Check size={12} />{:else}<TriangleAlert size={12} />{/if}
+				{#if vaultStore.hasTemplatesFolder}<Check size={12} aria-hidden='true' />{:else}<TriangleAlert size={12} aria-hidden='true' />{/if}
 				_templates
 			</span>
 			<button class='btn-new' onclick={() => uiStore.openCreateTripModal()}>
-				<Plus size={16} />
+				<Plus size={16} aria-hidden='true' />
 				New Trip
 			</button>
 			<button class='btn-secondary' onclick={handleChangeVault}>
@@ -53,7 +53,7 @@
 	{#if vaultStore.loading}
 		<div class='loading'>
 			<div class='spinner'></div>
-			<p>Loading travel data...</p>
+			<p>Loading travel data</p>
 		</div>
 	{:else if vaultStore.error}
 		<div class='error-message'>
@@ -62,11 +62,11 @@
 		</div>
 	{:else if sortedYears.length === 0}
 		<div class='empty-state'>
-			<Folder size={48} strokeWidth={1.5} opacity={0.4} />
+			<Folder size={48} strokeWidth={1.5} opacity={0.4} aria-hidden='true' />
 			<h2>No travel plans found</h2>
 			<p>Create your first trip or make sure your vault has a <code>Travel</code> folder.</p>
 			<button class='btn-new btn-large' onclick={() => uiStore.openCreateTripModal()}>
-				<Plus size={22} />
+				<Plus size={22} aria-hidden='true' />
 				Create First Trip
 			</button>
 		</div>

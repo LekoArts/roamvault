@@ -1,22 +1,11 @@
 <script lang='ts'>
 	import type { TripData } from '../models/types'
 	import { uiStore } from '../stores/ui.svelte'
+	import { formatDateRange } from '../utils/format'
 
 	const { trip }: { trip: TripData } = $props()
 
-	const dateRange = $derived.by(() => {
-		const start = trip.frontmatter.startDate as string | undefined
-		const end = trip.frontmatter.endDate as string | undefined
-		if (!start)
-			return ''
-		const fmt = (d: string) => {
-			const [y, m, day] = d.split('-')
-			return `${day}.${m}.${y}`
-		}
-		if (end && end !== start)
-			return `${fmt(start)} – ${fmt(end)}`
-		return fmt(start)
-	})
+	const dateRange = $derived(formatDateRange(trip.frontmatter.startDate, trip.frontmatter.endDate))
 
 	const typeLabel = $derived.by(() => {
 		switch (trip.type) {
@@ -109,6 +98,10 @@
 		margin: 0;
 		font-size: 1.0625rem;
 		font-weight: 600;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.badge {

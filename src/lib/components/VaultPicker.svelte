@@ -45,7 +45,7 @@
 	<div class='vault-picker'>
 		<div class='vault-picker-inner'>
 			<div class='logo-mark'>
-				<FolderPlus size={48} strokeWidth={1.5} />
+				<FolderPlus size={48} strokeWidth={1.5} aria-hidden='true' />
 			</div>
 
 			<h1>RoamVault</h1>
@@ -59,11 +59,11 @@
 			{:else if phase === 'opening' || vaultStore.loading}
 				<div class='loading'>
 					<div class='spinner'></div>
-					<p>Opening vault...</p>
+					<p>Opening vault</p>
 				</div>
 			{:else}
 				<button class='open-vault-btn' onclick={handleOpen}>
-					<FolderOpen size={20} />
+					<FolderOpen size={20} aria-hidden='true' />
 					Open Vault
 				</button>
 

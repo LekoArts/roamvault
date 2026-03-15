@@ -1,5 +1,6 @@
 <script lang='ts'>
 	import type { SubItem } from '../models/types'
+	import { formatDate } from '../utils/format'
 
 	const {
 		items,
@@ -16,15 +17,6 @@
 			return aDate.localeCompare(bDate)
 		}),
 	)
-
-	function formatDate(dateStr: unknown): string {
-		if (typeof dateStr !== 'string' || !dateStr)
-			return ''
-		const [y, m, d] = dateStr.split('-')
-		if (!y || !m || !d)
-			return String(dateStr)
-		return `${d}.${m}.${y}`
-	}
 </script>
 
 <div class='item-list'>
@@ -98,6 +90,10 @@
 
 	.item-name {
 		font-weight: 500;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
 	}
 
 	.item-meta {

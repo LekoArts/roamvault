@@ -4,6 +4,8 @@
 	type FieldType = 'text' | 'date' | 'url' | 'array' | 'boolean'
 	type FieldValue = string | string[] | boolean
 
+	const WHITESPACE_RE = /\s+/g
+
 	const {
 		label,
 		type = 'text',
@@ -26,6 +28,7 @@
 
 	// Snapshot the prop once — the parent uses {#key} to remount when it should reset.
 	const init = untrack(() => initialValue)
+	const fieldName = untrack(() => label.toLowerCase().replace(WHITESPACE_RE, '-'))
 
 	let textValue = $state(typeof init === 'string' ? init : '')
 	let checked = $state(init === true)
@@ -59,6 +62,7 @@
 			<input
 				type='checkbox'
 				id={label}
+				name={fieldName}
 				{checked}
 				onchange={handleCheckbox}
 			/>
@@ -74,6 +78,8 @@
 			<input
 				type='date'
 				id={label}
+				name={fieldName}
+				autocomplete='off'
 				value={textValue}
 				{required}
 				min={min || undefined}
@@ -84,6 +90,8 @@
 			<input
 				type='url'
 				id={label}
+				name={fieldName}
+				autocomplete='off'
 				value={textValue}
 				{required}
 				{placeholder}
@@ -93,6 +101,8 @@
 			<input
 				type='text'
 				id={label}
+				name={fieldName}
+				autocomplete='off'
 				value={arrayText}
 				placeholder={placeholder || 'Comma-separated values'}
 				oninput={handleArrayInput}
@@ -101,6 +111,8 @@
 			<input
 				type='text'
 				id={label}
+				name={fieldName}
+				autocomplete='off'
 				value={textValue}
 				{required}
 				{placeholder}
@@ -139,12 +151,13 @@
 		font-size: 0.9375rem;
 		font-family: inherit;
 		outline: none;
-		transition: border-color 0.2s;
 		color-scheme: light dark;
 	}
 
-	input:focus {
+	input:focus-visible {
 		border-color: var(--color-primary);
+		outline: 2px solid var(--color-primary);
+		outline-offset: -1px;
 	}
 
 	.checkbox-label {

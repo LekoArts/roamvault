@@ -100,7 +100,7 @@
 						label={field.key}
 						type={field.type}
 						initialValue={defaultFor(field)}
-						placeholder={field.type === 'url' ? 'https://...' : ''}
+						placeholder={field.type === 'url' ? 'https://' : ''}
 						min={field.key === 'endDate' ? endDateMin : field.type === 'date' ? tripStart : ''}
 						max={field.type === 'date' ? tripEnd : ''}
 						onchange={(v) => {
@@ -120,7 +120,7 @@
 		<div class='form-actions'>
 			<button type='button' class='btn-cancel' onclick={() => uiStore.closeModal()}>Cancel</button>
 			<button type='submit' class='btn-save' disabled={saving || !itemName.trim()}>
-				{saving ? 'Saving...' : 'Save'}
+				{saving ? 'Saving' : 'Save'}
 			</button>
 		</div>
 	</form>

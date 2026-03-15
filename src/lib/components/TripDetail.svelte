@@ -1,23 +1,12 @@
 <script lang='ts'>
 	import { ArrowLeft, Calendar, Plus, Users } from '@lucide/svelte'
 	import { uiStore } from '../stores/ui.svelte'
+	import { formatDateRange } from '../utils/format'
 	import ItemList from './ItemList.svelte'
 
 	const trip = $derived(uiStore.selectedTrip!)
 
-	const dateRange = $derived.by(() => {
-		const start = trip.frontmatter.startDate as string | undefined
-		const end = trip.frontmatter.endDate as string | undefined
-		if (!start)
-			return ''
-		const fmt = (d: string) => {
-			const [y, m, day] = d.split('-')
-			return `${day}.${m}.${y}`
-		}
-		if (end && end !== start)
-			return `${fmt(start)} – ${fmt(end)}`
-		return fmt(start)
-	})
+	const dateRange = $derived(formatDateRange(trip.frontmatter.startDate, trip.frontmatter.endDate))
 
 	const typeLabel = $derived.by(() => {
 		switch (trip.type) {
@@ -48,7 +37,7 @@
 <div class='trip-detail'>
 	<header class='detail-header'>
 		<button class='btn-back' onclick={() => uiStore.navigate('travel-list')}>
-			<ArrowLeft size={18} />
+			<ArrowLeft size={18} aria-hidden='true' />
 			Back
 		</button>
 	</header>
@@ -66,13 +55,13 @@
 		<div class='trip-meta'>
 			{#if dateRange}
 				<div class='meta-item'>
-					<Calendar size={16} />
+					<Calendar size={16} aria-hidden='true' />
 					{dateRange}
 				</div>
 			{/if}
 			{#if persons}
 				<div class='meta-item'>
-					<Users size={16} />
+					<Users size={16} aria-hidden='true' />
 					{persons.join(', ')}
 				</div>
 			{/if}
@@ -84,7 +73,7 @@
 					<div class='sub-section-header'>
 						<ItemList items={trip.planning ?? []} label='Planning' />
 						<button class='btn-add' onclick={() => uiStore.openCreateItemModal('Planning')}>
-							<Plus size={14} />
+							<Plus size={14} aria-hidden='true' />
 							New Day Plan
 						</button>
 					</div>
@@ -94,7 +83,7 @@
 					<div class='sub-section-header'>
 						<ItemList items={trip.activities ?? []} label='Activities' />
 						<button class='btn-add' onclick={() => uiStore.openCreateItemModal('Activity')}>
-							<Plus size={14} />
+							<Plus size={14} aria-hidden='true' />
 							New Activity
 						</button>
 					</div>
@@ -106,7 +95,7 @@
 					<div class='sub-section-header'>
 						<ItemList items={trip.stops ?? []} label='Stops' />
 						<button class='btn-add' onclick={() => uiStore.openCreateItemModal('Stop')}>
-							<Plus size={14} />
+							<Plus size={14} aria-hidden='true' />
 							New Stop
 						</button>
 					</div>

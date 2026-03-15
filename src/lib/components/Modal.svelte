@@ -50,7 +50,7 @@
 		<div class='modal-header'>
 			<h2>{title}</h2>
 			<button class='modal-close' onclick={onclose} aria-label='Close'>
-				<X size={20} />
+				<X size={20} aria-hidden='true' />
 			</button>
 		</div>
 		<div class='modal-body'>
@@ -69,6 +69,7 @@
 		background: var(--color-bg);
 		color: var(--color-text);
 		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+		overscroll-behavior: contain;
 	}
 
 	dialog::backdrop {
