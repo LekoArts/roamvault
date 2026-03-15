@@ -7,6 +7,8 @@ Your vault is the source of truth. RoamVault reads the folder structure and temp
 > [!NOTE]
 > This project is built for my personal Obsidian vault structure and travel workflow. It expects specific folder names, template files, and frontmatter conventions. If you find the idea useful, fork it and adjust the templates, folder paths, and property handling to match your own setup.
 
+https://github.com/user-attachments/assets/8776cac3-4b64-41e0-af6b-a61c1de3913f
+
 ## How it works
 
 RoamVault uses the [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API) to open an Obsidian vault folder directly from the browser. No server, no sync, no uploads. The vault handle is persisted in IndexedDB so it reopens automatically on your next visit.
