@@ -11,6 +11,11 @@
 	let year = $state(String(new Date().getFullYear()))
 	let saving = $state(false)
 	let saveError = $state<string | null>(null)
+	const todayStr = (() => {
+		const t = new Date()
+		return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`
+	})()
+	let startDate = $state(todayStr)
 
 	const template = $derived(getTemplateForTripType(vaultStore.templates, tripType))
 	const fields = $derived(template ? getEditableFields(template, false) : [])
@@ -19,15 +24,15 @@
 	const formValues: Record<string, unknown> = {}
 
 	function defaultFor(field: typeof fields[number]): string | string[] | boolean {
-		if (field.type === 'date') {
-			const t = new Date()
-			return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`
-		}
-		if (field.type === 'array')
-			return []
-		if (field.type === 'boolean')
-			return false
-		return ''
+		let val: string | string[] | boolean = ''
+		if (field.type === 'date')
+			val = todayStr
+		else if (field.type === 'array')
+			val = []
+		else if (field.type === 'boolean')
+			val = false
+		formValues[field.key] = val
+		return val
 	}
 
 	async function handleSave() {
@@ -100,7 +105,12 @@
 						type={field.type}
 						initialValue={defaultFor(field)}
 						placeholder={field.type === 'url' ? 'https://...' : ''}
-						onchange={(v) => { formValues[field.key] = v }}
+						min={field.key === 'endDate' ? startDate : ''}
+						onchange={(v) => {
+							formValues[field.key] = v
+							if (field.key === 'startDate')
+								startDate = v as string
+						}}
 					/>
 				{/each}
 			{/key}

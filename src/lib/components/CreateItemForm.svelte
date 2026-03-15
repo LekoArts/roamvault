@@ -1,4 +1,5 @@
 <script lang='ts'>
+	import { untrack } from 'svelte'
 	import { uiStore } from '../stores/ui.svelte'
 	import { vaultStore } from '../stores/vault.svelte'
 	import { getEditableFields, getTemplateForItemType } from '../templates/engine'
@@ -8,7 +9,6 @@
 	let itemName = $state('')
 	let saving = $state(false)
 	let saveError = $state<string | null>(null)
-
 	const itemType = $derived(uiStore.itemTypeToCreate!)
 	const trip = $derived(uiStore.selectedTrip!)
 
@@ -17,16 +17,21 @@
 	const tripStart = $derived(typeof trip.frontmatter.startDate === 'string' ? trip.frontmatter.startDate : '')
 	const tripEnd = $derived(typeof trip.frontmatter.endDate === 'string' ? trip.frontmatter.endDate : '')
 
+	let itemStartDate = $state(untrack(() => tripStart))
+	const endDateMin = $derived(itemStartDate > tripStart ? itemStartDate : tripStart)
+
 	const formValues: Record<string, unknown> = {}
 
 	function defaultFor(field: typeof fields[number]): string | string[] | boolean {
+		let val: string | string[] | boolean = ''
 		if (field.type === 'date')
-			return tripStart || ''
-		if (field.type === 'array')
-			return []
-		if (field.type === 'boolean')
-			return false
-		return ''
+			val = tripStart || ''
+		else if (field.type === 'array')
+			val = []
+		else if (field.type === 'boolean')
+			val = false
+		formValues[field.key] = val
+		return val
 	}
 
 	const modalTitle = $derived.by(() => {
@@ -96,9 +101,13 @@
 						type={field.type}
 						initialValue={defaultFor(field)}
 						placeholder={field.type === 'url' ? 'https://...' : ''}
-						min={field.type === 'date' ? tripStart : ''}
+						min={field.key === 'endDate' ? endDateMin : field.type === 'date' ? tripStart : ''}
 						max={field.type === 'date' ? tripEnd : ''}
-						onchange={(v) => { formValues[field.key] = v }}
+						onchange={(v) => {
+							formValues[field.key] = v
+							if (field.key === 'startDate')
+								itemStartDate = v as string
+						}}
 					/>
 				{/each}
 			{/key}
