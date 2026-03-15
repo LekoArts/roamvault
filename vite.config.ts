@@ -7,5 +7,10 @@ export default defineConfig({
 	test: {
 		include: ['src/**/*.test.ts'],
 		exclude: ['node_modules', 'dist'],
+		coverage: {
+			provider: 'v8',
+			include: ['src/lib/**/*.ts'],
+			exclude: ['src/lib/**/*.test.ts', 'src/lib/**/*.d.ts', 'src/lib/components/**', 'src/lib/models/types.ts'],
+		},
 	},
 })

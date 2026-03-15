@@ -8,8 +8,14 @@ import {
 	getTargetPath,
 	getTemplateForItemType,
 	getTemplateForTripType,
+	loadTemplates,
 	processTemplate,
 } from './engine'
+
+vi.mock('../services/vault', () => ({
+	listDirectory: vi.fn(),
+	readFile: vi.fn(),
+}))
 
 // Helper to build a TemplateDefinition from raw markdown
 function makeTemplate(type: string, content: string): TemplateDefinition {
@@ -84,6 +90,50 @@ endDate: "{{date}}"
 ---
 ## Location
 `
+
+describe('loadTemplates', () => {
+	it('loads and parses template files from _templates directory', async () => {
+		const { listDirectory, readFile } = await import('../services/vault')
+		const mockListDirectory = vi.mocked(listDirectory)
+		const mockReadFile = vi.mocked(readFile)
+
+		mockListDirectory.mockResolvedValue([
+			{ name: 'Travel_Simple.md', kind: 'file', path: '_templates/Travel_Simple.md' },
+			{ name: 'Activity.md', kind: 'file', path: '_templates/Activity.md' },
+			{ name: 'SomeFolder', kind: 'directory', path: '_templates/SomeFolder' },
+			{ name: 'readme.txt', kind: 'file', path: '_templates/readme.txt' },
+		])
+
+		mockReadFile.mockImplementation((_root, path) => {
+			if (path === '_templates/Travel_Simple.md')
+				return Promise.resolve(SIMPLE_TEMPLATE)
+			if (path === '_templates/Activity.md')
+				return Promise.resolve(ACTIVITY_TEMPLATE)
+			return Promise.reject(new Error('not found'))
+		})
+
+		const root = {} as FileSystemDirectoryHandle
+		const templates = await loadTemplates(root)
+
+		expect(templates).toHaveLength(2)
+		expect(templates[0].type).toBe('Travel_Simple')
+		expect(templates[0].frontmatter.base).toBe('[[Travel.base]]')
+		expect(templates[1].type).toBe('Activity')
+	})
+
+	it('returns empty array when no .md files', async () => {
+		const { listDirectory } = await import('../services/vault')
+		const mockListDirectory = vi.mocked(listDirectory)
+
+		mockListDirectory.mockResolvedValue([
+			{ name: 'SomeFolder', kind: 'directory', path: '_templates/SomeFolder' },
+		])
+
+		const root = {} as FileSystemDirectoryHandle
+		const templates = await loadTemplates(root)
+		expect(templates).toHaveLength(0)
+	})
+})
 
 describe('detectTripType', () => {
 	it('returns Travel_Simple when base does not include Travel.base', () => {

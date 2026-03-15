@@ -161,4 +161,47 @@ describe('vault service', () => {
 
 		expect(await verifyPermission(handle)).toBe(false)
 	})
+
+	it('openVault calls showDirectoryPicker', async () => {
+		const { openVault } = await import('./vault')
+
+		const mockHandle = createMockDirHandle(new Map(), 'my-vault')
+		const spy = vi.fn().mockResolvedValue(mockHandle)
+
+		// openVault uses window.showDirectoryPicker
+		const fakeWindow = { showDirectoryPicker: spy }
+		vi.stubGlobal('window', fakeWindow)
+
+		const result = await openVault()
+		expect(spy).toHaveBeenCalledWith({ mode: 'readwrite' })
+		expect(result).toBe(mockHandle)
+
+		vi.unstubAllGlobals()
+	})
+
+	it('listDirectoryRecursive returns flat and nested entries', async () => {
+		const { listDirectoryRecursive } = await import('./vault')
+
+		const deepFile = { kind: 'file', name: 'deep.md' } as FileSystemHandle
+		const subDir = createMockDirHandle(new Map([['deep.md', deepFile]]), 'sub')
+		// tag subDir so it looks like a directory entry
+		Object.defineProperty(subDir, 'kind', { value: 'directory' })
+
+		const topFile = { kind: 'file', name: 'top.md' } as FileSystemHandle
+		const root = createMockDirHandle(new Map([
+			['top.md', topFile],
+			['sub', subDir],
+		]))
+
+		const entries = await listDirectoryRecursive(root)
+		expect(entries).toHaveLength(3)
+
+		const names = entries.map(e => e.name)
+		expect(names).toContain('top.md')
+		expect(names).toContain('sub')
+		expect(names).toContain('deep.md')
+
+		const deepEntry = entries.find(e => e.name === 'deep.md')
+		expect(deepEntry!.path).toBe('sub/deep.md')
+	})
 })
