@@ -1,48 +1,62 @@
-# Svelte + TS + Vite
+# RoamVault
 
-This template should help get you started developing with Svelte and TypeScript in Vite.
+A lightweight web app for creating travel notes in an [Obsidian](https://obsidian.md/) vault. Instead of manually creating files, applying templates, and filling out frontmatter properties inside Obsidian, RoamVault gives you a focused UI to do it in one click.
 
-## Recommended IDE Setup
+Your vault is the source of truth. RoamVault reads the folder structure and templates from disk and writes new Markdown files back. It does not edit existing files.
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
+> [!NOTE]
+> This project is built for my personal Obsidian vault structure and travel workflow. It expects specific folder names, template files, and frontmatter conventions. If you find the idea useful, fork it and adjust the templates, folder paths, and property handling to match your own setup.
 
-## Need an official Svelte framework?
+## How it works
 
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
+RoamVault uses the [File System Access API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API) to open an Obsidian vault folder directly from the browser. No server, no sync, no uploads. The vault handle is persisted in IndexedDB so it reopens automatically on your next visit.
 
-## Technical considerations
+The app expects two folders in the vault root:
 
-**Why use this over SvelteKit?**
+- `_templates/` with Markdown template files that define frontmatter properties for each file type
+- `Travel/` with year folders containing trip files and subfolders
 
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
+## Trip types
 
-This template contains as little as possible to get started with Vite + TypeScript + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
+RoamVault supports three kinds of trips, each with its own template:
 
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
+- **Simple** (`Travel_Simple.md`): A single Markdown file for straightforward trips
+- **Advanced** (`Travel_Advanced.md`): A folder with sub-items for day plans (`Planning/`) and activities (`Activities/`)
+- **Roadtrip** (`Travel_Roadtrip.md`): A folder with stops (`Roadtrip/`)
 
-**Why `global.d.ts` instead of `compilerOptions.types` inside `jsconfig.json` or `tsconfig.json`?**
+When creating sub-items (activities, day plans, stops), the app fills in the `backlink` property, applies date constraints from the parent trip, and places the file in the correct subfolder.
 
-Setting `compilerOptions.types` shuts out all other types not explicitly listed in the configuration. Using triple-slash references keeps the default TypeScript setting of accepting type information from the entire workspace, while also adding `svelte` and `vite/client` type information.
+## Template properties
 
-**Why include `.vscode/extensions.json`?**
+Templates use YAML frontmatter. RoamVault handles the following automatically:
 
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
+- `base` is kept as-is from the template
+- `backlink` is set to a wikilink pointing to the parent trip file
+- `"{{date}}"` placeholders are replaced with the selected date in `YYYY-MM-DD` format
+- Empty string and array properties (`Persons`, `Location`, etc.) become form fields
+- `banner` accepts an image URL
+- `Done` renders as a checkbox
 
-**Why enable `allowJs` in the TS template?**
+## Development
 
-While `allowJs: false` would indeed prevent the use of `.js` files in the project, it does not prevent the use of JavaScript syntax in `.svelte` files. In addition, it would force `checkJs: false`, bringing the worst of both worlds: not being able to guarantee the entire codebase is TypeScript, and also having worse typechecking for the existing JavaScript. In addition, there are valid use cases in which a mixed codebase may be relevant.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/rixo/svelte-hmr#svelte-hmr).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```ts
-// store.ts
-// An extremely simple external store
-import { writable } from 'svelte/store'
-
-export default writable(0)
+```bash
+pnpm install
+pnpm dev
 ```
+
+### Scripts
+
+| Command         | Description                    |
+| --------------- | ------------------------------ |
+| `pnpm dev`      | Start dev server               |
+| `pnpm build`    | Production build               |
+| `pnpm preview`  | Preview production build       |
+| `pnpm check`    | Run svelte-check and tsc       |
+| `pnpm lint`     | Run ESLint                     |
+| `pnpm lint:fix` | Run ESLint with auto-fix       |
+| `pnpm test`     | Run tests (Vitest)             |
+| `pnpm coverage` | Run tests with coverage report |
+
+## License
+
+[MIT](./LICENSE)
