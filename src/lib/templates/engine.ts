@@ -1,4 +1,4 @@
-import type { ItemType, TemplateDefinition, TripType } from '../models/types'
+import type { ItemType, TemplateDefinition, TripClassificationMetadata, TripType } from '../models/types'
 import { parseFrontmatter, serializeFrontmatter } from '../parser/frontmatter'
 import { listDirectory, readFile } from '../services/vault'
 
@@ -25,22 +25,39 @@ export async function loadTemplates(
 	return templates
 }
 
+export function detectTripClassification(
+	content: string,
+	frontmatter: Record<string, unknown>,
+): TripClassificationMetadata {
+	const base = String(frontmatter.base ?? '')
+	const hasTravelBase = base.includes('Travel.base')
+	const hasRoadtripBase = content.includes('![[Roadtrip.base]]')
+	const hasPlanningBase = content.includes('![[Planning.base]]')
+	const hasActivitiesBase = content.includes('![[Activities.base]]')
+
+	let matchedType: TripType = 'Travel_Simple'
+	if (hasTravelBase) {
+		if (hasRoadtripBase)
+			matchedType = 'Travel_Roadtrip'
+		else if (hasPlanningBase || hasActivitiesBase)
+			matchedType = 'Travel_Advanced'
+	}
+
+	return {
+		base,
+		hasTravelBase,
+		hasRoadtripBase,
+		hasPlanningBase,
+		hasActivitiesBase,
+		matchedType,
+	}
+}
+
 export function detectTripTypeFromFile(
 	content: string,
 	frontmatter: Record<string, unknown>,
 ): TripType {
-	const base = String(frontmatter.base ?? '')
-
-	if (!base.includes('Travel.base'))
-		return 'Travel_Simple'
-
-	if (content.includes('![[Roadtrip.base]]'))
-		return 'Travel_Roadtrip'
-
-	if (content.includes('![[Planning.base]]') || content.includes('![[Activities.base]]'))
-		return 'Travel_Advanced'
-
-	return 'Travel_Simple'
+	return detectTripClassification(content, frontmatter).matchedType
 }
 
 export function getTemplate(

@@ -3,7 +3,7 @@ import type { TemplateValues } from '../templates/engine'
 import { parseFrontmatter } from '../parser/frontmatter'
 import { listDirectory, openVault as openVaultPicker, readFile, verifyPermission, writeFile } from '../services/vault'
 import { clearVaultHandle, loadVaultHandle, saveVaultHandle } from '../services/vault-store'
-import { detectTripTypeFromFile, getTargetPath, getTemplate, loadTemplates, processTemplate } from '../templates/engine'
+import { detectTripClassification, getTargetPath, getTemplate, loadTemplates, processTemplate } from '../templates/engine'
 
 let vaultHandle = $state<FileSystemDirectoryHandle | null>(null)
 let vaultName = $state('')
@@ -37,14 +37,15 @@ async function scanTravelData(root: FileSystemDirectoryHandle): Promise<TravelTr
 				// Simple trip — standalone .md file
 				const content = await readFile(root, entry.path)
 				const { data, content: body } = parseFrontmatter(content)
-				const tripType = detectTripTypeFromFile(body, data)
+				const classificationMetadata = detectTripClassification(body, data)
 
 				trips.push({
 					name: entry.name.replace('.md', ''),
 					year,
-					type: tripType,
+					type: classificationMetadata.matchedType,
 					path: entry.path,
 					frontmatter: data,
+					classificationMetadata,
 				})
 			}
 			else if (entry.kind === 'directory') {
@@ -61,22 +62,23 @@ async function scanTravelData(root: FileSystemDirectoryHandle): Promise<TravelTr
 				}
 
 				const { data, content: body } = parseFrontmatter(content)
-				const tripType = detectTripTypeFromFile(body, data)
+				const classificationMetadata = detectTripClassification(body, data)
 
 				const trip: TripData = {
 					name: tripName,
 					year,
-					type: tripType,
+					type: classificationMetadata.matchedType,
 					path: tripFilePath,
 					frontmatter: data,
+					classificationMetadata,
 				}
 
 				// Scan sub-items based on type
-				if (tripType === 'Travel_Advanced') {
+				if (classificationMetadata.matchedType === 'Travel_Advanced') {
 					trip.activities = await scanSubItems(root, `${entry.path}/Activities`)
 					trip.planning = await scanSubItems(root, `${entry.path}/Planning`)
 				}
-				else if (tripType === 'Travel_Roadtrip') {
+				else if (classificationMetadata.matchedType === 'Travel_Roadtrip') {
 					trip.stops = await scanSubItems(root, `${entry.path}/Roadtrip`)
 				}
 
@@ -264,6 +266,11 @@ throw new Error(`Template not found for ${itemType}`)
 
 	async reload() {
 		await loadData()
+	},
+
+	async debugTrip(path: string) {
+		await loadData()
+		return this.findTrip(path)
 	},
 
 	findTrip(path: string): TripData | undefined {

@@ -8,12 +8,22 @@ export interface SubItem {
 	frontmatter: Record<string, unknown>
 }
 
+export interface TripClassificationMetadata {
+	base: string
+	hasTravelBase: boolean
+	hasRoadtripBase: boolean
+	hasPlanningBase: boolean
+	hasActivitiesBase: boolean
+	matchedType: TripType
+}
+
 export interface TripData {
 	name: string
 	year: string
 	type: TripType
 	path: string
 	frontmatter: Record<string, unknown>
+	classificationMetadata?: TripClassificationMetadata
 	activities?: SubItem[]
 	planning?: SubItem[]
 	stops?: SubItem[]

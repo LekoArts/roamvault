@@ -32,6 +32,19 @@
 	})
 
 	const banner = $derived(trip.frontmatter.banner as string | undefined)
+
+	const classificationChecks = $derived.by(() => {
+		const metadata = trip.classificationMetadata
+		if (!metadata)
+			return []
+
+		return [
+			{ label: 'frontmatter.base contains Travel.base', matched: metadata.hasTravelBase },
+			{ label: 'body contains ![[Roadtrip.base]]', matched: metadata.hasRoadtripBase },
+			{ label: 'body contains ![[Planning.base]]', matched: metadata.hasPlanningBase },
+			{ label: 'body contains ![[Activities.base]]', matched: metadata.hasActivitiesBase },
+		]
+	})
 </script>
 
 <div class='trip-detail'>
@@ -49,7 +62,14 @@
 	<div class='trip-content'>
 		<div class='trip-title-row'>
 			<h1>{trip.name}</h1>
-			<span class='type-label {typeClass}'>{typeLabel}</span>
+			<div class='trip-title-actions'>
+				<span class='type-label {typeClass}'>{typeLabel}</span>
+				{#if trip.classificationMetadata}
+					<button class='btn-metadata' onclick={() => uiStore.toggleTripMetadata()}>
+						{uiStore.showTripMetadata ? 'Hide metadata' : 'Show metadata'}
+					</button>
+				{/if}
+			</div>
 		</div>
 
 		<div class='trip-meta'>
@@ -66,6 +86,20 @@
 				</div>
 			{/if}
 		</div>
+
+		{#if uiStore.showTripMetadata && trip.classificationMetadata}
+			<section class='metadata-panel'>
+				<p><strong>Detected type:</strong> {trip.type}</p>
+				<p><strong>frontmatter.base:</strong> <code>{trip.classificationMetadata.base || '(empty)'}</code></p>
+				<ul>
+					{#each classificationChecks as check}
+						<li class:matched={check.matched} class:missing={!check.matched}>
+							{check.matched ? '✓' : '✗'} {check.label}
+						</li>
+					{/each}
+				</ul>
+			</section>
+		{/if}
 
 		{#if trip.type === 'Travel_Advanced'}
 			<div class='sub-sections'>
@@ -151,7 +185,15 @@
 	.trip-title-row {
 		display: flex;
 		align-items: center;
+		justify-content: space-between;
 		gap: var(--space-6);
+		flex-wrap: wrap;
+	}
+
+	.trip-title-actions {
+		display: flex;
+		align-items: center;
+		gap: var(--space-4);
 		flex-wrap: wrap;
 	}
 
@@ -197,6 +239,54 @@
 		align-items: center;
 		gap: var(--space-3);
 		font-size: 0.9375rem;
+		color: var(--color-text-muted);
+	}
+
+	.btn-metadata {
+		display: inline-flex;
+		align-items: center;
+		padding: var(--space-2) var(--space-5);
+		background: none;
+		border: 1px solid var(--color-border);
+		border-radius: 6px;
+		color: var(--color-text-muted);
+		font-size: 0.75rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: border-color 0.2s, color 0.2s;
+	}
+
+	.btn-metadata:hover {
+		border-color: var(--color-primary);
+		color: var(--color-primary);
+	}
+
+	.metadata-panel {
+		margin-top: var(--space-8);
+		padding: var(--space-8);
+		background: var(--color-bg-card);
+		border: 1px solid var(--color-border);
+		border-radius: 12px;
+	}
+
+	.metadata-panel p {
+		margin: var(--space-3) 0;
+	}
+
+	.metadata-panel ul {
+		margin: var(--space-5) 0 0;
+		padding-left: var(--space-8);
+	}
+
+	.metadata-panel li {
+		margin-top: var(--space-2);
+	}
+
+	.metadata-panel li.matched {
+		color: var(--color-success, #15803d);
+	}
+
+	.metadata-panel li.missing {
 		color: var(--color-text-muted);
 	}
 
