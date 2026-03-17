@@ -17,6 +17,28 @@
 			return aDate.localeCompare(bDate)
 		}),
 	)
+
+	const groupedByLocation = $derived.by(() => {
+		const groups = new Map<string, SubItem[]>()
+
+		for (const item of sorted) {
+			const location = item.frontmatter.Location as string | undefined
+			if (!location)
+				continue
+
+			const existing = groups.get(location)
+			if (existing) {
+				existing.push(item)
+			}
+			else {
+				groups.set(location, [item])
+			}
+		}
+
+		return [...groups.entries()]
+	})
+
+	const ungroupedItems = $derived(sorted.filter(item => !item.frontmatter.Location))
 </script>
 
 <div class='item-list'>
@@ -24,26 +46,41 @@
 	{#if items.length === 0}
 		<p class='empty'>No {label.toLowerCase()} yet</p>
 	{:else}
-		<ul>
-			{#each sorted as item (item.path)}
-				<li class='item'>
-					<span class='item-name'>{item.name}</span>
-					<span class='item-meta'>
-						{#if item.frontmatter.Location}
-							<span class='meta-tag'>{item.frontmatter.Location}</span>
-						{/if}
-						{#if item.frontmatter.startDate}
-							<span class='meta-date'>
-								{formatDate(item.frontmatter.startDate)}
-								{#if item.frontmatter.endDate && item.frontmatter.endDate !== item.frontmatter.startDate}
-									– {formatDate(item.frontmatter.endDate)}
-								{/if}
-							</span>
-						{/if}
-					</span>
-				</li>
+		{#if groupedByLocation.length > 0}
+			{#each groupedByLocation as [location, locationItems]}
+				<h4>{location}</h4>
+				<ul>
+					{#each locationItems as item (item.path)}
+						<li class='item'>
+							<span class='item-name'>{item.name}</span>
+						</li>
+					{/each}
+				</ul>
 			{/each}
-		</ul>
+		{/if}
+
+		{#if ungroupedItems.length > 0}
+			<ul>
+				{#each ungroupedItems as item (item.path)}
+					<li class='item'>
+						<span class='item-name'>{item.name}</span>
+						<span class='item-meta'>
+							{#if item.frontmatter.Location}
+								<span class='meta-tag'>{item.frontmatter.Location}</span>
+							{/if}
+							{#if item.frontmatter.startDate}
+								<span class='meta-date'>
+									{formatDate(item.frontmatter.startDate)}
+									{#if item.frontmatter.endDate && item.frontmatter.endDate !== item.frontmatter.startDate}
+										– {formatDate(item.frontmatter.endDate)}
+									{/if}
+								</span>
+							{/if}
+						</span>
+					</li>
+				{/each}
+			</ul>
+		{/if}
 	{/if}
 </div>
 
@@ -59,6 +96,10 @@
 		letter-spacing: 0.05em;
 		color: var(--color-text-muted);
 		margin: 0 0 var(--space-6);
+	}
+
+	h4 {
+		margin: var(--space-6) 0 var(--space-4) 0;
 	}
 
 	.empty {
