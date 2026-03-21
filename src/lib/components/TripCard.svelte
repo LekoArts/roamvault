@@ -43,12 +43,12 @@
 	{/if}
 	<div class='trip-info'>
 		<div class='trip-header'>
-			<h3>{trip.name}</h3>
 			<span class='badge {typeClass}'>{typeLabel}</span>
+			{#if dateRange}
+				<p class='trip-dates'>{dateRange}</p>
+			{/if}
 		</div>
-		{#if dateRange}
-			<p class='trip-dates'>{dateRange}</p>
-		{/if}
+		<h3>{trip.name}</h3>
 		{#if itemCount > 0}
 			<p class='trip-items'>{itemCount} item{itemCount !== 1 ? 's' : ''}</p>
 		{/if}
@@ -59,9 +59,10 @@
 	.trip-card {
 		display: flex;
 		flex-direction: column;
-		background: var(--color-bg-card);
+		min-height: 15.5rem;
+		background: var(--color-bg-card-strong);
 		border: 1px solid var(--color-border);
-		border-radius: 12px;
+		border-radius: calc(var(--radius-lg) - 4px);
 		overflow: hidden;
 		cursor: pointer;
 		text-align: left;
@@ -69,21 +70,37 @@
 		padding: 0;
 		font: inherit;
 		color: inherit;
-		transition: box-shadow 0.2s, border-color 0.2s;
+		box-shadow: var(--shadow-sm);
 	}
 
 	.trip-card:hover {
 		border-color: var(--color-primary);
-		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+		transform: translateY(-2px);
+		box-shadow: var(--shadow-md);
+	}
+
+	.trip-card:active {
+		transform: translateY(0);
+		box-shadow: var(--shadow-sm);
+	}
+
+	.trip-card:focus-visible {
+		outline: 2px solid var(--color-primary);
+		outline-offset: 2px;
 	}
 
 	.trip-banner {
-		height: 120px;
+		height: 144px;
 		background-size: cover;
 		background-position: center;
 	}
 
 	.trip-info {
+		display: flex;
+		flex: 1;
+		flex-direction: column;
+		justify-content: space-between;
+		gap: var(--space-6);
 		padding: var(--space-8);
 	}
 
@@ -92,25 +109,22 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: var(--space-4);
+		flex-wrap: wrap;
 	}
 
 	h3 {
 		margin: 0;
-		font-size: 1.0625rem;
-		font-weight: 600;
-		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+		font-size: 1.4rem;
+		line-height: 1.05;
 	}
 
 	.badge {
-		font-size: 0.6875rem;
-		font-weight: 600;
+		font-size: 0.7rem;
+		font-weight: 700;
 		padding: var(--space-2) var(--space-4);
-		border-radius: 6px;
+		border-radius: var(--radius-pill);
 		text-transform: uppercase;
-		letter-spacing: 0.03em;
+		letter-spacing: 0.08em;
 		white-space: nowrap;
 	}
 
@@ -129,15 +143,10 @@
 		color: var(--color-badge-roadtrip);
 	}
 
-	.trip-dates {
-		margin: var(--space-4) 0 0;
-		font-size: 0.875rem;
-		color: var(--color-text-muted);
-	}
-
+	.trip-dates,
 	.trip-items {
-		margin: var(--space-2) 0 0;
-		font-size: 0.8125rem;
+		margin: 0;
+		font-size: 0.85rem;
 		color: var(--color-text-muted);
 	}
 </style>

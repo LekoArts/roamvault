@@ -1,5 +1,6 @@
 <script lang='ts'>
 	import type { SubItem } from '../models/types'
+	import { MapPin } from '@lucide/svelte'
 	import { formatDate } from '../utils/format'
 
 	const {
@@ -42,20 +43,32 @@
 </script>
 
 <div class='item-list'>
-	<h3>{label}</h3>
 	{#if items.length === 0}
 		<p class='empty'>No {label.toLowerCase()} yet</p>
 	{:else}
 		{#if groupedByLocation.length > 0}
 			{#each groupedByLocation as [location, locationItems]}
-				<h4>{location}</h4>
-				<ul>
-					{#each locationItems as item (item.path)}
-						<li class='item'>
-							<span class='item-name'>{item.name}</span>
-						</li>
-					{/each}
-				</ul>
+				<div class='location-group'>
+					<h4 class='location-heading'>
+						<MapPin size={14} aria-hidden='true' />
+						{location}
+					</h4>
+					<ul>
+						{#each locationItems as item (item.path)}
+							<li class='item'>
+								<span class='item-name'>{item.name}</span>
+								{#if item.frontmatter.startDate}
+									<span class='item-date'>
+										{formatDate(item.frontmatter.startDate)}
+										{#if item.frontmatter.endDate && item.frontmatter.endDate !== item.frontmatter.startDate}
+											– {formatDate(item.frontmatter.endDate)}
+										{/if}
+									</span>
+								{/if}
+							</li>
+						{/each}
+					</ul>
+				</div>
 			{/each}
 		{/if}
 
@@ -66,10 +79,13 @@
 						<span class='item-name'>{item.name}</span>
 						<span class='item-meta'>
 							{#if item.frontmatter.Location}
-								<span class='meta-tag'>{item.frontmatter.Location}</span>
+								<span class='meta-tag'>
+									<MapPin size={12} aria-hidden='true' />
+									{item.frontmatter.Location}
+								</span>
 							{/if}
 							{#if item.frontmatter.startDate}
-								<span class='meta-date'>
+								<span class='item-date'>
 									{formatDate(item.frontmatter.startDate)}
 									{#if item.frontmatter.endDate && item.frontmatter.endDate !== item.frontmatter.startDate}
 										– {formatDate(item.frontmatter.endDate)}
@@ -87,34 +103,42 @@
 <style>
 	.item-list {
 		margin: 0;
-	}
-
-	h3 {
-		font-size: 0.875rem;
-		font-weight: 600;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		color: var(--color-text-muted);
-		margin: 0 0 var(--space-6);
-	}
-
-	h4 {
-		margin: var(--space-6) 0 var(--space-4) 0;
+		display: grid;
+		gap: var(--space-6);
 	}
 
 	.empty {
 		color: var(--color-text-muted);
-		font-size: 0.875rem;
-		font-style: italic;
+		font-size: 0.9rem;
 		margin: 0;
+		padding: var(--space-8);
+		text-align: center;
+		border: 1px dashed var(--color-border);
+		border-radius: var(--radius-md);
+	}
+
+	.location-group {
+		display: grid;
+		gap: var(--space-4);
+	}
+
+	.location-heading {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-3);
+		margin: 0;
+		font-size: 0.82rem;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--color-text-muted);
 	}
 
 	ul {
 		list-style: none;
 		margin: 0;
 		padding: 0;
-		display: flex;
-		flex-direction: column;
+		display: grid;
 		gap: var(--space-3);
 	}
 
@@ -124,9 +148,18 @@
 		justify-content: space-between;
 		gap: var(--space-6);
 		padding: var(--space-5) var(--space-6);
-		background: var(--color-bg-input);
-		border-radius: 8px;
-		font-size: 0.9375rem;
+		background: var(--color-bg-accent);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-sm);
+		font-size: 0.95rem;
+		transition:
+			background-color 0.15s ease,
+			border-color 0.15s ease;
+	}
+
+	.item:hover {
+		background: var(--color-bg-hover);
+		border-color: var(--color-border-strong);
 	}
 
 	.item-name {
@@ -140,14 +173,26 @@
 	.item-meta {
 		display: flex;
 		align-items: center;
-		gap: var(--space-5);
-		font-size: 0.8125rem;
+		gap: var(--space-4);
+		flex-shrink: 0;
+	}
+
+	.item-date {
+		font-size: 0.8rem;
 		color: var(--color-text-muted);
+		white-space: nowrap;
 	}
 
 	.meta-tag {
-		background: var(--color-bg-hover);
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		font-size: 0.78rem;
+		font-weight: 600;
+		color: var(--color-text-muted);
+		background: var(--color-bg-card);
+		border: 1px solid var(--color-border);
 		padding: var(--space-1) var(--space-4);
-		border-radius: 4px;
+		border-radius: var(--radius-pill);
 	}
 </style>

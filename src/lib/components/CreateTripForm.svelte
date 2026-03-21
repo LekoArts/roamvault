@@ -20,7 +20,6 @@
 	const template = $derived(getTemplate(vaultStore.templates, tripType))
 	const fields = $derived(template ? getEditableFields(template, false) : [])
 
-	// Mutable store for user edits, keyed by field name
 	const formValues: Record<string, unknown> = {}
 
 	function defaultFor(field: typeof fields[number]): string | string[] | boolean {
@@ -71,6 +70,10 @@
 		e.preventDefault()
 		handleSave()
 	}}>
+		<div class='form-intro'>
+			<p>Choose the trip structure first, then fill in the metadata you want written into the note.</p>
+		</div>
+
 		<div class='form-fields'>
 			<FormField
 				label='Trip Name'
@@ -136,6 +139,18 @@
 		gap: var(--space-10);
 	}
 
+	.form-intro {
+		padding: var(--space-6) var(--space-8);
+		border-radius: var(--radius-md);
+		background: var(--color-bg-accent);
+		border: 1px solid var(--color-border);
+	}
+
+	.form-intro p {
+		margin: 0;
+		color: var(--color-text-muted);
+	}
+
 	.form-fields {
 		display: flex;
 		flex-direction: column;
@@ -149,32 +164,36 @@
 	}
 
 	.form-field label {
-		font-size: 0.875rem;
-		font-weight: 500;
+		font-size: 0.82rem;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
 		color: var(--color-text-muted);
 	}
 
 	select {
-		padding: var(--space-4) var(--space-6);
+		min-height: 3rem;
+		padding: 0 var(--space-6);
 		padding-right: var(--space-16);
 		border: 1px solid var(--color-border);
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 		background-color: var(--color-bg-input);
 		color: var(--color-text);
-		font-size: 0.9375rem;
+		font-size: 0.95rem;
 		font-family: inherit;
 		outline: none;
 		cursor: pointer;
 		appearance: none;
-		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23816a53' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 		background-repeat: no-repeat;
-		background-position: right var(--space-5) center;
+		background-position: right 1rem center;
 	}
 
 	select:focus-visible {
 		border-color: var(--color-primary);
-		outline: 2px solid var(--color-primary);
-		outline-offset: -1px;
+		outline: 2px solid color-mix(in srgb, var(--color-primary) 40%, transparent);
+		outline-offset: 1px;
+		box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 12%, transparent);
 	}
 
 	.form-actions {
@@ -184,35 +203,45 @@
 		padding-top: var(--space-2);
 	}
 
-	.btn-cancel {
-		padding: var(--space-4) var(--space-8);
-		background: none;
-		border: 1px solid var(--color-border);
-		border-radius: 8px;
-		color: var(--color-text);
-		font-size: 0.875rem;
+	.btn-cancel,
+	.btn-save {
+		min-height: 2.85rem;
+		padding: 0 var(--space-8);
+		border-radius: var(--radius-pill);
+		font-size: 0.9rem;
+		font-weight: 600;
 		cursor: pointer;
-		transition: background-color 0.2s;
+	}
+
+	.btn-cancel {
+		background: transparent;
+		border: 1px solid var(--color-border-strong);
+		color: var(--color-text);
 	}
 
 	.btn-cancel:hover {
 		background: var(--color-bg-hover);
+		border-color: var(--color-primary);
+	}
+
+	.btn-cancel:active {
+		background: var(--color-bg-accent);
 	}
 
 	.btn-save {
-		padding: var(--space-4) var(--space-8);
 		background: var(--color-primary);
-		color: white;
+		color: var(--color-primary-contrast);
 		border: none;
-		border-radius: 8px;
-		font-size: 0.875rem;
-		font-weight: 500;
-		cursor: pointer;
-		transition: opacity 0.2s;
+		box-shadow: var(--shadow-sm);
 	}
 
 	.btn-save:hover:not(:disabled) {
-		opacity: 0.9;
+		background: var(--color-primary-strong);
+		transform: translateY(-1px);
+	}
+
+	.btn-save:active:not(:disabled) {
+		transform: translateY(0);
 	}
 
 	.btn-save:disabled {
@@ -221,8 +250,8 @@
 	}
 
 	.error {
+		margin: 0;
 		color: var(--color-danger);
 		font-size: 0.875rem;
-		margin: 0;
 	}
 </style>

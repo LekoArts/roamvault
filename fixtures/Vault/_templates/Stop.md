@@ -10,8 +10,8 @@ endDate: "{{date}}"
 **Name**
 
 Address
-Check-in / Check-out: 15 Uhr / 11 Uhr
-Besonderheiten: TBD
+Check-in / Check-out: 3 PM / 11 AM
+Other: TBD
 
 ## Activities
 

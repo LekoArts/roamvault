@@ -28,10 +28,10 @@ Done: false
 >
 > **Location ({{date:DD.MM.YYYY}} - {{date:DD.MM.YYYY}})**
 >
-> | Name                 | Hotel Name             |
-> | -------------------- | ---------------------- |
-> | Check-in / Check-out | Ab 15 Uhr / Bis 11 Uhr |
-> | URL                  | URL                    |
+> | Name                 | Hotel Name   |
+> | -------------------- | ------------ |
+> | Check-in / Check-out | 3 PM / 11 AM |
+> | URL                  | URL          |
 
 > [!tip]+ Good to know
 > Contents

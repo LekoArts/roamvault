@@ -26,7 +26,6 @@
 		onchange: (value: FieldValue) => void
 	} = $props()
 
-	// Snapshot the prop once — the parent uses {#key} to remount when it should reset.
 	const init = untrack(() => initialValue)
 	const fieldName = untrack(() => label.toLowerCase().replace(WHITESPACE_RE, '-'))
 
@@ -53,7 +52,6 @@
 				.filter(Boolean),
 		)
 	}
-
 </script>
 
 <div class='form-field'>
@@ -130,8 +128,10 @@
 	}
 
 	label {
-		font-size: 0.875rem;
-		font-weight: 500;
+		font-size: 0.82rem;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
 		color: var(--color-text-muted);
 	}
 
@@ -143,21 +143,27 @@
 	input[type='text'],
 	input[type='url'],
 	input[type='date'] {
-		padding: var(--space-4) var(--space-6);
+		min-height: 3rem;
+		padding: 0 var(--space-6);
 		border: 1px solid var(--color-border);
-		border-radius: 8px;
+		border-radius: var(--radius-md);
 		background: var(--color-bg-input);
 		color: var(--color-text);
-		font-size: 0.9375rem;
+		font-size: 0.95rem;
 		font-family: inherit;
 		outline: none;
 		color-scheme: light dark;
 	}
 
+	input::placeholder {
+		color: color-mix(in srgb, var(--color-text-muted) 80%, transparent);
+	}
+
 	input:focus-visible {
 		border-color: var(--color-primary);
-		outline: 2px solid var(--color-primary);
-		outline-offset: -1px;
+		outline: 2px solid color-mix(in srgb, var(--color-primary) 40%, transparent);
+		outline-offset: 1px;
+		box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-primary) 12%, transparent);
 	}
 
 	.checkbox-label {
@@ -165,8 +171,10 @@
 		align-items: center;
 		gap: var(--space-4);
 		cursor: pointer;
-		font-size: 0.9375rem;
+		font-size: 0.95rem;
 		color: var(--color-text);
+		letter-spacing: 0;
+		text-transform: none;
 	}
 
 	input[type='checkbox'] {
@@ -174,5 +182,4 @@
 		height: 18px;
 		accent-color: var(--color-primary);
 	}
-
 </style>

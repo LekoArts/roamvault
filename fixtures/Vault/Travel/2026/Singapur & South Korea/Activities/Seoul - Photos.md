@@ -1,6 +1,6 @@
 ---
 base: "[[_templates/Bases/Activities.base]]"
-backlink: "[[Singapur & Südkorea]]"
+backlink: "[[Singapur & South Korea]]"
 Location: Seoul
 Done: false
 ---

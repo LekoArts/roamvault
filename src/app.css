@@ -1,22 +1,43 @@
 :root {
-	/* Colors */
-	--color-bg: #ffffff;
-	--color-bg-card: #ffffff;
-	--color-bg-hover: #f5f5f5;
-	--color-bg-input: #fafafa;
-	--color-text: #1a1a1a;
-	--color-text-muted: #6b7280;
-	--color-border: #e5e7eb;
-	--color-primary: #6366f1;
-	--color-danger: #ef4444;
+	/* Color system */
+	--color-bg: #f6f1e8;
+	--color-bg-elevated: #fbf7f1;
+	--color-bg-card: rgba(255, 252, 247, 0.88);
+	--color-bg-card-strong: #fffdf9;
+	--color-bg-hover: rgba(124, 90, 54, 0.08);
+	--color-bg-input: rgba(255, 252, 247, 0.94);
+	--color-bg-accent: #efe3d3;
+	--color-text: #2e241c;
+	--color-text-muted: #756454;
+	--color-border: rgba(96, 73, 49, 0.18);
+	--color-border-strong: rgba(96, 73, 49, 0.3);
+	--color-primary: #7a5433;
+	--color-primary-strong: #5f3f23;
+	--color-primary-soft: rgba(122, 84, 51, 0.12);
+	--color-primary-contrast: #ffffff;
+	--color-danger: #b44a3f;
+	--color-success: #4d7a5a;
+	--color-warning: #a26b1f;
+	--color-overlay: rgba(46, 36, 28, 0.16);
 
 	/* Badge colors */
-	--color-badge-simple-bg: #dbeafe;
-	--color-badge-simple: #2563eb;
-	--color-badge-advanced-bg: #fce7f3;
-	--color-badge-advanced: #db2777;
-	--color-badge-roadtrip-bg: #d1fae5;
-	--color-badge-roadtrip: #059669;
+	--color-badge-simple-bg: #e4ecf3;
+	--color-badge-simple: #42617b;
+	--color-badge-advanced-bg: #efe2df;
+	--color-badge-advanced: #8b4e46;
+	--color-badge-roadtrip-bg: #e3ebde;
+	--color-badge-roadtrip: #55704d;
+
+	/* Shadows */
+	--shadow-sm: 0 10px 30px rgba(58, 42, 26, 0.06);
+	--shadow-md: 0 20px 60px rgba(58, 42, 26, 0.1);
+	--shadow-lg: 0 28px 90px rgba(58, 42, 26, 0.16);
+
+	/* Radii */
+	--radius-sm: 10px;
+	--radius-md: 16px;
+	--radius-lg: 24px;
+	--radius-pill: 999px;
 
 	/* Spacing */
 	--space-1: 0.125rem;
@@ -31,16 +52,16 @@
 	--space-14: 1.75rem;
 	--space-16: 2rem;
 	--space-20: 2.5rem;
+	--space-24: 3rem;
 	--space-30: 3.75rem;
 
 	/* Layout */
-	--max-width: 960px;
+	--max-width: 1120px;
 
 	/* Typography */
-	--font-sans:
-		-apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, Adwaita Sans, Cantarell, Ubuntu,
-		roboto, noto, helvetica, arial, sans-serif;
-	--font-mono: Menlo, Consolas, Monaco, Adwaita Mono, Liberation Mono, Lucida Console, monospace;
+	--font-sans: "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+	--font-serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+	--font-mono: "SFMono-Regular", Menlo, Consolas, Monaco, monospace;
 
 	font-family: var(--font-sans);
 	line-height: 1.5;
@@ -48,7 +69,7 @@
 	color: var(--color-text);
 	background-color: var(--color-bg);
 
-	color-scheme: light dark;
+	color-scheme: light;
 	font-synthesis: none;
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
@@ -57,22 +78,38 @@
 
 @media (prefers-color-scheme: dark) {
 	:root {
-		--color-bg: #0f0f0f;
-		--color-bg-card: #1a1a1a;
-		--color-bg-hover: #262626;
-		--color-bg-input: #1f1f1f;
-		--color-text: #f5f5f5;
-		--color-text-muted: #9ca3af;
-		--color-border: #333333;
-		--color-primary: #818cf8;
-		--color-danger: #f87171;
+		--color-bg: #1a1612;
+		--color-bg-elevated: #201b16;
+		--color-bg-card: rgba(36, 30, 25, 0.88);
+		--color-bg-card-strong: #2a231d;
+		--color-bg-hover: rgba(246, 229, 211, 0.08);
+		--color-bg-input: rgba(44, 37, 31, 0.96);
+		--color-bg-accent: #32291f;
+		--color-text: #f3eadf;
+		--color-text-muted: #c0b09e;
+		--color-border: rgba(243, 234, 223, 0.14);
+		--color-border-strong: rgba(243, 234, 223, 0.24);
+		--color-primary: #d6b18a;
+		--color-primary-strong: #e3c3a2;
+		--color-primary-soft: rgba(214, 177, 138, 0.16);
+		--color-primary-contrast: #1a1612;
+		--color-danger: #ef8f83;
+		--color-success: #8cb497;
+		--color-warning: #d9a55a;
+		--color-overlay: rgba(10, 9, 8, 0.45);
 
-		--color-badge-simple-bg: #1e3a5f;
-		--color-badge-simple: #60a5fa;
-		--color-badge-advanced-bg: #4a1942;
-		--color-badge-advanced: #f472b6;
-		--color-badge-roadtrip-bg: #064e3b;
-		--color-badge-roadtrip: #34d399;
+		--color-badge-simple-bg: #2a3340;
+		--color-badge-simple: #b4cadc;
+		--color-badge-advanced-bg: #3f2d2b;
+		--color-badge-advanced: #e6b6b0;
+		--color-badge-roadtrip-bg: #2b3427;
+		--color-badge-roadtrip: #b6cfaf;
+
+		--shadow-sm: 0 12px 30px rgba(0, 0, 0, 0.24);
+		--shadow-md: 0 24px 70px rgba(0, 0, 0, 0.32);
+		--shadow-lg: 0 36px 100px rgba(0, 0, 0, 0.4);
+
+		color-scheme: dark;
 	}
 }
 
@@ -82,28 +119,88 @@
 	box-sizing: border-box;
 }
 
+html {
+	background: var(--color-bg);
+}
+
 body {
 	margin: 0;
 	min-height: 100vh;
-	background: var(--color-bg);
+	background:
+		radial-gradient(circle at top, rgba(255, 255, 255, 0.45), transparent 32%),
+		linear-gradient(180deg, var(--color-bg-elevated) 0%, var(--color-bg) 22%, var(--color-bg) 100%);
 	color: var(--color-text);
 	transition:
 		background-color 0.2s,
 		color 0.2s;
 }
 
+body::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	background:
+		linear-gradient(135deg, rgba(255, 255, 255, 0.16), transparent 40%),
+		repeating-linear-gradient(180deg, rgba(122, 84, 51, 0.025) 0, rgba(122, 84, 51, 0.025) 1px, transparent 1px, transparent 24px);
+	opacity: 0.8;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+	font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-family: var(--font-serif);
+	letter-spacing: -0.02em;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+	transition:
+		background-color 0.18s ease,
+		border-color 0.18s ease,
+		color 0.18s ease,
+		box-shadow 0.18s ease,
+		transform 0.18s ease;
+}
+
+button {
+	-webkit-tap-highlight-color: transparent;
+}
+
 code {
 	font-family: var(--font-mono);
 	font-size: 0.875em;
 	padding: var(--space-1) var(--space-3);
-	background: var(--color-bg-hover);
-	border-radius: 4px;
+	background: var(--color-bg-accent);
+	border-radius: 6px;
 }
 
 button:focus-visible,
-a:focus-visible {
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
 	outline: 2px solid var(--color-primary);
 	outline-offset: 2px;
+}
+
+::selection {
+	background: var(--color-primary);
+	color: white;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -113,10 +210,6 @@ a:focus-visible {
 		animation-duration: 0.01ms !important;
 		animation-iteration-count: 1 !important;
 		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
 	}
-}
-
-::selection {
-	background: var(--color-primary);
-	color: white;
 }

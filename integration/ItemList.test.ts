@@ -1,10 +1,10 @@
+import { describe, expect, it } from 'vitest'
 import { render } from 'vitest-browser-svelte'
-import { describe, expect, test } from 'vitest'
 
 import ItemList from '../src/lib/components/ItemList.svelte'
 
-describe('ItemList', () => {
-	test('renders list label and items sorted by start date', async () => {
+describe('itemList', () => {
+	it('renders items sorted by start date', async () => {
 		const screen = await render(ItemList, {
 			props: {
 				label: 'Planning',
@@ -15,8 +15,18 @@ describe('ItemList', () => {
 			},
 		})
 
-		await expect.element(screen.getByRole('heading', { name: 'Planning' })).toBeVisible()
 		await expect.element(screen.getByText('Day 1')).toBeVisible()
 		await expect.element(screen.getByText('Day 3')).toBeVisible()
+	})
+
+	it('shows empty state when no items', async () => {
+		const screen = await render(ItemList, {
+			props: {
+				label: 'Planning',
+				items: [],
+			},
+		})
+
+		await expect.element(screen.getByText('No planning yet')).toBeVisible()
 	})
 })

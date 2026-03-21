@@ -7,16 +7,26 @@
 	import { uiStore } from './lib/stores/ui.svelte'
 </script>
 
-{#if uiStore.currentView === 'vault-picker'}
-	<VaultPicker />
-{:else if uiStore.currentView === 'travel-list'}
-	<TravelList />
-{:else if uiStore.currentView === 'trip-detail'}
-	<TripDetail />
-{/if}
+<div class='app-shell'>
+	{#if uiStore.currentView === 'vault-picker'}
+		<VaultPicker />
+	{:else if uiStore.currentView === 'travel-list'}
+		<TravelList />
+	{:else if uiStore.currentView === 'trip-detail'}
+		<TripDetail />
+	{/if}
+</div>
 
 {#if uiStore.modalOpen === 'create-trip'}
 	<CreateTripForm />
 {:else if uiStore.modalOpen === 'create-item'}
 	<CreateItemForm />
 {/if}
+
+<style>
+	.app-shell {
+		position: relative;
+		min-height: 100vh;
+		isolation: isolate;
+	}
+</style>

@@ -62,19 +62,19 @@
 <style>
 	dialog {
 		border: none;
-		border-radius: 12px;
+		border-radius: var(--radius-lg);
 		padding: 0;
-		max-width: 520px;
-		width: 90vw;
-		background: var(--color-bg);
+		max-width: 620px;
+		width: min(92vw, 620px);
+		background: var(--color-bg-card-strong);
 		color: var(--color-text);
-		box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+		box-shadow: var(--shadow-lg);
 		overscroll-behavior: contain;
 	}
 
 	dialog::backdrop {
-		background: rgba(0, 0, 0, 0.5);
-		backdrop-filter: blur(4px);
+		background: var(--color-overlay);
+		backdrop-filter: blur(10px);
 	}
 
 	.modal-content {
@@ -85,31 +85,36 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		gap: var(--space-6);
 		margin-bottom: var(--space-10);
 	}
 
 	.modal-header h2 {
 		margin: 0;
-		font-size: 1.25rem;
-		font-weight: 600;
+		font-size: 1.75rem;
+		line-height: 1;
 	}
 
 	.modal-close {
-		background: none;
-		border: none;
+		background: transparent;
+		border: 1px solid var(--color-border);
 		cursor: pointer;
 		color: var(--color-text-muted);
 		padding: var(--space-2);
-		border-radius: 6px;
+		border-radius: 999px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		transition: background-color 0.2s;
 	}
 
 	.modal-close:hover {
 		background: var(--color-bg-hover);
 		color: var(--color-text);
+		border-color: var(--color-primary);
+	}
+
+	.modal-close:active {
+		background: var(--color-bg-accent);
 	}
 
 	.modal-body {
