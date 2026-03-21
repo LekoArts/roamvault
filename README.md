@@ -4,8 +4,12 @@ A lightweight web app for creating travel notes in an [Obsidian](https://obsidia
 
 Your vault is the source of truth. RoamVault reads the folder structure and templates from disk and writes new Markdown files back. It does not edit existing files.
 
+[**Website** (Open your vault or try a demo)](https://roamvault.netlify.app/)
+
 > [!NOTE]
 > This project is built for my personal Obsidian vault structure and travel workflow. It expects specific folder names, template files, and frontmatter conventions. If you find the idea useful, fork it and adjust the templates, folder paths, and property handling to match your own setup.
+
+![Demo of RoamVault overview page.](./public/screenshot.png)
 
 ## How it works
 
