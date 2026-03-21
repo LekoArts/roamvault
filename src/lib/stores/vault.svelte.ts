@@ -1,11 +1,14 @@
 import type { ItemType, SubItem, TemplateDefinition, TravelTree, TripData, TripType } from '../models/types'
+import type { VaultBackend } from '../services/vault-backend'
 import type { TemplateValues } from '../templates/engine'
 import { parseFrontmatter } from '../parser/frontmatter'
-import { listDirectory, openVault as openVaultPicker, readFile, verifyPermission, writeFile } from '../services/vault'
+import { createDemoVault } from '../services/demo-vault'
+import { openVault as openVaultPicker, verifyPermission } from '../services/vault'
+import { createDemoBackend, createFSBackend } from '../services/vault-backend'
 import { clearVaultHandle, loadVaultHandle, saveVaultHandle } from '../services/vault-store'
-import { detectTripClassification, getTargetPath, getTemplate, loadTemplates, processTemplate } from '../templates/engine'
+import { detectTripClassification, getTargetPath, getTemplate, loadTemplatesFromBackend, processTemplate } from '../templates/engine'
 
-let vaultHandle = $state<FileSystemDirectoryHandle | null>(null)
+let backend = $state<VaultBackend | null>(null)
 let vaultName = $state('')
 let travelTree = $state.raw<TravelTree>({})
 let templates = $state.raw<TemplateDefinition[]>([])
@@ -13,13 +16,14 @@ let loading = $state(false)
 let error = $state<string | null>(null)
 let hasTravelFolder = $state(false)
 let hasTemplatesFolder = $state(false)
+let isDemo = $state(false)
 
-async function scanTravelData(root: FileSystemDirectoryHandle): Promise<TravelTree> {
+async function scanTravelData(b: VaultBackend): Promise<TravelTree> {
 	const tree: TravelTree = {}
 
 	let travelEntries
 	try {
-		travelEntries = await listDirectory(root, 'Travel')
+		travelEntries = await b.listDirectory('Travel')
 	}
 	catch {
 		return tree
@@ -29,13 +33,13 @@ async function scanTravelData(root: FileSystemDirectoryHandle): Promise<TravelTr
 
 	for (const yearDir of yearDirs) {
 		const year = yearDir.name
-		const yearEntries = await listDirectory(root, yearDir.path)
+		const yearEntries = await b.listDirectory(yearDir.path)
 		const trips: TripData[] = []
 
 		for (const entry of yearEntries) {
 			if (entry.kind === 'file' && entry.name.endsWith('.md')) {
 				// Simple trip — standalone .md file
-				const content = await readFile(root, entry.path)
+				const content = await b.readFile(entry.path)
 				const { data, content: body } = parseFrontmatter(content)
 				const classificationMetadata = detectTripClassification(body, data)
 
@@ -55,7 +59,7 @@ async function scanTravelData(root: FileSystemDirectoryHandle): Promise<TravelTr
 
 				let content: string
 				try {
-					content = await readFile(root, tripFilePath)
+					content = await b.readFile(tripFilePath)
 				}
 				catch {
 					continue
@@ -75,11 +79,11 @@ async function scanTravelData(root: FileSystemDirectoryHandle): Promise<TravelTr
 
 				// Scan sub-items based on type
 				if (classificationMetadata.matchedType === 'Travel_Advanced') {
-					trip.activities = await scanSubItems(root, `${entry.path}/Activities`)
-					trip.planning = await scanSubItems(root, `${entry.path}/Planning`)
+					trip.activities = await scanSubItems(b, `${entry.path}/Activities`)
+					trip.planning = await scanSubItems(b, `${entry.path}/Planning`)
 				}
 				else if (classificationMetadata.matchedType === 'Travel_Roadtrip') {
-					trip.stops = await scanSubItems(root, `${entry.path}/Roadtrip`)
+					trip.stops = await scanSubItems(b, `${entry.path}/Roadtrip`)
 				}
 
 				trips.push(trip)
@@ -98,10 +102,10 @@ async function scanTravelData(root: FileSystemDirectoryHandle): Promise<TravelTr
 	return tree
 }
 
-async function scanSubItems(root: FileSystemDirectoryHandle, path: string): Promise<SubItem[]> {
+async function scanSubItems(b: VaultBackend, path: string): Promise<SubItem[]> {
 	let entries
 	try {
-		entries = await listDirectory(root, path)
+		entries = await b.listDirectory(path)
 	}
 	catch {
 		return []
@@ -113,7 +117,7 @@ async function scanSubItems(root: FileSystemDirectoryHandle, path: string): Prom
 		if (entry.kind !== 'file' || !entry.name.endsWith('.md'))
 			continue
 
-		const content = await readFile(root, entry.path)
+		const content = await b.readFile(entry.path)
 		const { data } = parseFrontmatter(content)
 
 		items.push({
@@ -126,26 +130,16 @@ async function scanSubItems(root: FileSystemDirectoryHandle, path: string): Prom
 	return items
 }
 
-async function directoryExists(root: FileSystemDirectoryHandle, name: string): Promise<boolean> {
-	try {
-		await root.getDirectoryHandle(name)
-		return true
-	}
-	catch {
-		return false
-	}
-}
-
 async function loadData() {
-	if (!vaultHandle)
-return
+	if (!backend)
+		return
 
 	loading = true
 	error = null
 
 	try {
-		hasTravelFolder = await directoryExists(vaultHandle, 'Travel')
-		hasTemplatesFolder = await directoryExists(vaultHandle, '_templates')
+		hasTravelFolder = await backend.directoryExists('Travel')
+		hasTemplatesFolder = await backend.directoryExists('_templates')
 
 		if (!hasTravelFolder || !hasTemplatesFolder) {
 			const missing = [
@@ -158,8 +152,8 @@ return
 			return
 		}
 
-		templates = await loadTemplates(vaultHandle)
-		travelTree = await scanTravelData(vaultHandle)
+		templates = await loadTemplatesFromBackend(backend)
+		travelTree = await scanTravelData(backend)
 	}
 	catch (e) {
 		error = e instanceof Error ? e.message : 'Failed to load vault data'
@@ -170,7 +164,7 @@ return
 }
 
 export const vaultStore = {
-	get handle() { return vaultHandle },
+	get handle() { return backend },
 	get name() { return vaultName },
 	get travelTree() { return travelTree },
 	get templates() { return templates },
@@ -178,18 +172,20 @@ export const vaultStore = {
 	get error() { return error },
 	get hasTravelFolder() { return hasTravelFolder },
 	get hasTemplatesFolder() { return hasTemplatesFolder },
+	get isDemo() { return isDemo },
 
 	async openVault() {
 		try {
 			const handle = await openVaultPicker()
-			vaultHandle = handle
+			backend = createFSBackend(handle)
 			vaultName = handle.name
+			isDemo = false
 			await saveVaultHandle(handle)
 			await loadData()
 		}
 		catch (e) {
 			if (e instanceof Error && e.name === 'AbortError')
-return
+				return
 			error = e instanceof Error ? e.message : 'Failed to open vault'
 		}
 	},
@@ -198,14 +194,15 @@ return
 		try {
 			const handle = await loadVaultHandle()
 			if (!handle)
-return false
+				return false
 
 			const granted = await verifyPermission(handle)
 			if (!granted)
-return false
+				return false
 
-			vaultHandle = handle
+			backend = createFSBackend(handle)
 			vaultName = handle.name
+			isDemo = false
 			await loadData()
 			return true
 		}
@@ -214,18 +211,26 @@ return false
 		}
 	},
 
+	async openDemoVault() {
+		const fs = createDemoVault()
+		backend = createDemoBackend(fs)
+		vaultName = 'Demo Vault'
+		isDemo = true
+		await loadData()
+	},
+
 	async createTrip(name: string, type: TripType, year: string, values: TemplateValues) {
-		if (!vaultHandle)
-return
+		if (!backend)
+			return
 
 		const template = getTemplate(templates, type)
 		if (!template)
-throw new Error(`Template not found for ${type}`)
+			throw new Error(`Template not found for ${type}`)
 
 		const path = getTargetPath(type, null, year, name)
 		const content = processTemplate(template, { ...values, tripName: name })
 
-		await writeFile(vaultHandle, path, content)
+		await backend.writeFile(path, content)
 		await loadData()
 
 		return path
@@ -239,28 +244,29 @@ throw new Error(`Template not found for ${type}`)
 		itemName: string,
 		values: TemplateValues,
 	) {
-		if (!vaultHandle)
-return
+		if (!backend)
+			return
 
 		const template = getTemplate(templates, itemType)
 		if (!template)
-throw new Error(`Template not found for ${itemType}`)
+			throw new Error(`Template not found for ${itemType}`)
 
 		const path = getTargetPath(tripType, itemType, year, tripName, itemName)
 		const content = processTemplate(template, { ...values, tripName })
 
-		await writeFile(vaultHandle, path, content)
+		await backend.writeFile(path, content)
 		await loadData()
 
 		return path
 	},
 
 	async closeVault() {
-		vaultHandle = null
+		backend = null
 		vaultName = ''
 		travelTree = {}
 		templates = []
 		error = null
+		isDemo = false
 		await clearVaultHandle()
 	},
 
@@ -277,7 +283,7 @@ throw new Error(`Template not found for ${itemType}`)
 		for (const trips of Object.values(travelTree)) {
 			const found = trips.find(t => t.path === path)
 			if (found)
-return found
+				return found
 		}
 		return undefined
 	},

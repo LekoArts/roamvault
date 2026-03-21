@@ -1,4 +1,5 @@
 import type { ItemType, TemplateDefinition, TripClassificationMetadata, TripType } from '../models/types'
+import type { VaultBackend } from '../services/vault-backend'
 import { parseFrontmatter, serializeFrontmatter } from '../parser/frontmatter'
 import { listDirectory, readFile } from '../services/vault'
 
@@ -16,6 +17,26 @@ export async function loadTemplates(
 			continue
 
 		const raw = await readFile(root, entry.path)
+		const { data } = parseFrontmatter(raw)
+		const type = entry.name.replace('.md', '')
+
+		templates.push({ type, content: raw, frontmatter: data })
+	}
+
+	return templates
+}
+
+export async function loadTemplatesFromBackend(
+	backend: VaultBackend,
+): Promise<TemplateDefinition[]> {
+	const entries = await backend.listDirectory('_templates')
+	const templates: TemplateDefinition[] = []
+
+	for (const entry of entries) {
+		if (entry.kind !== 'file' || !entry.name.endsWith('.md'))
+			continue
+
+		const raw = await backend.readFile(entry.path)
 		const { data } = parseFrontmatter(raw)
 		const type = entry.name.replace('.md', '')
 

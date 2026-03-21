@@ -44,7 +44,12 @@
 		</div>
 
 		<div class='hero-bottom'>
-			<p class='hero-summary'>{totalTrips} trip{totalTrips !== 1 ? 's' : ''} across {sortedYears.length} year{sortedYears.length !== 1 ? 's' : ''}</p>
+			<p class='hero-summary'>
+				{totalTrips} trip{totalTrips !== 1 ? 's' : ''} across {sortedYears.length} year{sortedYears.length !== 1 ? 's' : ''}
+				{#if vaultStore.isDemo}
+					<span class='demo-badge'>Demo: Changes won't persist</span>
+				{/if}
+			</p>
 			<div class='status-list'>
 				<span class='status-badge' class:ok={vaultStore.hasTravelFolder} class:missing={!vaultStore.hasTravelFolder}>
 					{#if vaultStore.hasTravelFolder}<Check size={12} aria-hidden='true' />{:else}<TriangleAlert size={12} aria-hidden='true' />{/if}
@@ -159,6 +164,19 @@
 		margin: 0;
 		font-size: 0.9rem;
 		color: var(--color-text-muted);
+	}
+
+	.demo-badge {
+		display: inline-block;
+		margin-left: var(--space-4);
+		padding: var(--space-1) var(--space-4);
+		font-size: 0.75rem;
+		font-weight: 500;
+		letter-spacing: 0.02em;
+		border-radius: var(--radius-pill);
+		background: var(--color-warning);
+		color: white;
+		vertical-align: middle;
 	}
 
 	.status-list {
@@ -300,7 +318,6 @@
 		margin: 0 0 var(--space-10);
 		color: var(--color-text-muted);
 	}
-
 
 	.spinner {
 		width: 34px;

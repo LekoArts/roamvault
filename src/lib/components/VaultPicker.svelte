@@ -1,10 +1,11 @@
 <script lang='ts'>
-	import { FolderOpen, FolderPlus } from '@lucide/svelte'
+	import { FolderOpen, FolderPlus, Github, Play } from '@lucide/svelte'
 	import { uiStore } from '../stores/ui.svelte'
 	import { vaultStore } from '../stores/vault.svelte'
 
 	let phase = $state<'checking' | 'opening' | 'ready'>('checking')
 	const unsupported = !('showDirectoryPicker' in window)
+	const demoEnabled = __DEMO__
 
 	async function handleOpen() {
 		phase = 'opening'
@@ -15,6 +16,12 @@
 		else {
 			phase = 'ready'
 		}
+	}
+
+	async function handleOpenDemo() {
+		phase = 'opening'
+		await vaultStore.openDemoVault()
+		uiStore.navigate('travel-list')
 	}
 
 	async function tryReopen() {
@@ -48,13 +55,22 @@
 			</div>
 
 			<h1>RoamVault</h1>
-			<p class='tagline'>A calmer workspace for trips, itineraries, and notes stored directly in Obsidian.</p>
+			<p class='tagline'>Runs entirely in the browser.<br />Your data never leaves your device.</p>
 
-			{#if unsupported}
+			{#if unsupported && !demoEnabled}
 				<div class='message-card unsupported'>
 					<p>Your browser does not support the File System Access API.</p>
 					<p>Please use <strong>Chrome</strong>, <strong>Edge</strong>, or another Chromium-based browser.</p>
 				</div>
+			{:else if unsupported && demoEnabled}
+				<div class='message-card unsupported'>
+					<p>Your browser does not support the File System Access API — but you can still try the demo!</p>
+				</div>
+
+				<button class='open-vault-btn' onclick={handleOpenDemo}>
+					<Play size={18} aria-hidden='true' />
+					Open Demo Vault
+				</button>
 			{:else if phase === 'opening' || vaultStore.loading}
 				<div class='loading-card'>
 					<div class='spinner'></div>
@@ -66,19 +82,31 @@
 					Open Vault
 				</button>
 
-				<p class='supporting-copy'>Reconnect to your existing travel vault or choose a fresh one to start planning.</p>
+				<p class='supporting-copy'>
+					{#if demoEnabled}
+						Or <button class='demo-link' onclick={handleOpenDemo}>try the demo vault</button> with sample data.
+					{:else}
+						Reconnect to your existing travel vault or choose a fresh one to start planning.
+					{/if}
+				</p>
 
 				{#if vaultStore.error}
 					<p class='error'>{vaultStore.error}</p>
 				{/if}
 			{/if}
 		</div>
+
+		<a class='source-link' href='https://github.com/LekoArts/roamvault' target='_blank' rel='noopener noreferrer'>
+			<Github size={14} aria-hidden='true' />
+			Source on GitHub
+		</a>
 	</div>
 {/if}
 
 <style>
 	.vault-picker {
 		display: flex;
+		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		min-height: 100vh;
@@ -156,6 +184,21 @@
 		transform: translateY(0);
 	}
 
+	.demo-link {
+		background: none;
+		border: none;
+		padding: 0;
+		font: inherit;
+		color: var(--color-primary);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+		cursor: pointer;
+	}
+
+	.demo-link:hover {
+		color: var(--color-primary-strong);
+	}
+
 	.supporting-copy {
 		margin: var(--space-10) 0 0;
 		font-size: 0.9rem;
@@ -202,5 +245,19 @@
 		margin-top: var(--space-8);
 		color: var(--color-danger);
 		font-size: 0.875rem;
+	}
+
+	.source-link {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		margin-top: var(--space-10);
+		font-size: 0.8rem;
+		color: var(--color-text-muted);
+		text-decoration: none;
+	}
+
+	.source-link:hover {
+		color: var(--color-text);
 	}
 </style>

@@ -23,6 +23,7 @@ vi.mock('../templates/engine', async (importOriginal) => {
 	return {
 		...actual,
 		loadTemplates: vi.fn(),
+		loadTemplatesFromBackend: vi.fn(),
 	}
 })
 
@@ -94,14 +95,14 @@ describe('vaultStore', () => {
 
 			const handle = mockDirHandleWithFolders('my-vault', ['Travel', '_templates'])
 			vi.mocked(vaultService.openVault).mockResolvedValue(handle)
-			vi.mocked(engineModule.loadTemplates).mockResolvedValue([
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockResolvedValue([
 				makeTemplate('Travel_Simple', SIMPLE_TEMPLATE_RAW),
 			])
 			vi.mocked(vaultService.listDirectory).mockResolvedValue([])
 
 			await vaultStore.openVault()
 
-			expect(vaultStore.handle).toBe(handle)
+			expect(vaultStore.handle).not.toBeNull()
 			expect(vaultStore.name).toBe('my-vault')
 			expect(vaultStore.hasTravelFolder).toBe(true)
 			expect(vaultStore.hasTemplatesFolder).toBe(true)
@@ -193,12 +194,12 @@ describe('vaultStore', () => {
 			const handle = mockDirHandleWithFolders('saved-vault', ['Travel', '_templates'])
 			vi.mocked(vaultStoreService.loadVaultHandle).mockResolvedValue(handle)
 			vi.mocked(vaultService.verifyPermission).mockResolvedValue(true)
-			vi.mocked(engineModule.loadTemplates).mockResolvedValue([])
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockResolvedValue([])
 			vi.mocked(vaultService.listDirectory).mockResolvedValue([])
 
 			const result = await vaultStore.reopenVault()
 			expect(result).toBe(true)
-			expect(vaultStore.handle).toBe(handle)
+			expect(vaultStore.handle).not.toBeNull()
 			expect(vaultStore.name).toBe('saved-vault')
 		})
 
@@ -221,7 +222,7 @@ describe('vaultStore', () => {
 			// Set up vault
 			const handle = mockDirHandleWithFolders('vault', ['Travel', '_templates'])
 			vi.mocked(vaultService.openVault).mockResolvedValue(handle)
-			vi.mocked(engineModule.loadTemplates).mockResolvedValue([
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockResolvedValue([
 				makeTemplate('Travel_Simple', SIMPLE_TEMPLATE_RAW),
 			])
 			vi.mocked(vaultService.listDirectory).mockResolvedValue([])
@@ -257,7 +258,7 @@ describe('vaultStore', () => {
 
 			const handle = mockDirHandleWithFolders('vault', ['Travel', '_templates'])
 			vi.mocked(vaultService.openVault).mockResolvedValue(handle)
-			vi.mocked(engineModule.loadTemplates).mockResolvedValue([])
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockResolvedValue([])
 			vi.mocked(vaultService.listDirectory).mockResolvedValue([])
 
 			await vaultStore.openVault()
@@ -283,7 +284,7 @@ Done: false
 
 			const handle = mockDirHandleWithFolders('vault', ['Travel', '_templates'])
 			vi.mocked(vaultService.openVault).mockResolvedValue(handle)
-			vi.mocked(engineModule.loadTemplates).mockResolvedValue([
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockResolvedValue([
 				makeTemplate('Activity', ACTIVITY_TEMPLATE_RAW),
 			])
 			vi.mocked(vaultService.listDirectory).mockResolvedValue([])
@@ -322,7 +323,7 @@ Done: false
 
 			const handle = mockDirHandleWithFolders('vault', ['Travel', '_templates'])
 			vi.mocked(vaultService.openVault).mockResolvedValue(handle)
-			vi.mocked(engineModule.loadTemplates).mockResolvedValue([])
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockResolvedValue([])
 			vi.mocked(vaultService.listDirectory).mockResolvedValue([])
 
 			await vaultStore.openVault()
@@ -340,11 +341,11 @@ Done: false
 			// Open a vault first
 			const handle = mockDirHandleWithFolders('vault', ['Travel', '_templates'])
 			vi.mocked(vaultService.openVault).mockResolvedValue(handle)
-			vi.mocked(engineModule.loadTemplates).mockResolvedValue([])
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockResolvedValue([])
 			vi.mocked(vaultService.listDirectory).mockResolvedValue([])
 
 			await vaultStore.openVault()
-			expect(vaultStore.handle).toBe(handle)
+			expect(vaultStore.handle).not.toBeNull()
 
 			await vaultStore.closeVault()
 
@@ -364,7 +365,7 @@ Done: false
 
 			const handle = mockDirHandleWithFolders('vault', ['Travel', '_templates'])
 			vi.mocked(vaultService.openVault).mockResolvedValue(handle)
-			vi.mocked(engineModule.loadTemplates).mockResolvedValue([])
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockResolvedValue([])
 
 			// Mock travel data with a simple trip
 			vi.mocked(vaultService.listDirectory).mockImplementation((_root, path) => {
@@ -421,15 +422,15 @@ Done: false
 
 			const handle = mockDirHandleWithFolders('vault', ['Travel', '_templates'])
 			vi.mocked(vaultService.openVault).mockResolvedValue(handle)
-			vi.mocked(engineModule.loadTemplates).mockResolvedValue([])
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockResolvedValue([])
 			vi.mocked(vaultService.listDirectory).mockResolvedValue([])
 
 			await vaultStore.openVault()
 
 			// Reload should call loadTemplates again
-			vi.mocked(engineModule.loadTemplates).mockClear()
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockClear()
 			await vaultStore.reload()
-			expect(engineModule.loadTemplates).toHaveBeenCalled()
+			expect(engineModule.loadTemplatesFromBackend).toHaveBeenCalled()
 		})
 	})
 
@@ -440,7 +441,7 @@ Done: false
 
 			const handle = mockDirHandleWithFolders('vault', ['Travel', '_templates'])
 			vi.mocked(vaultService.openVault).mockResolvedValue(handle)
-			vi.mocked(engineModule.loadTemplates).mockResolvedValue([])
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockResolvedValue([])
 
 			vi.mocked(vaultService.listDirectory).mockImplementation((_root, path) => {
 				if (path === 'Travel') {
@@ -518,7 +519,7 @@ endDate: 2026-05-02
 
 			const handle = mockDirHandleWithFolders('vault', ['Travel', '_templates'])
 			vi.mocked(vaultService.openVault).mockResolvedValue(handle)
-			vi.mocked(engineModule.loadTemplates).mockResolvedValue([])
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockResolvedValue([])
 
 			vi.mocked(vaultService.listDirectory).mockImplementation((_root, path) => {
 				if (path === 'Travel') {
@@ -575,7 +576,7 @@ endDate: 2026-09-17
 
 			const handle = mockDirHandleWithFolders('vault', ['Travel', '_templates'])
 			vi.mocked(vaultService.openVault).mockResolvedValue(handle)
-			vi.mocked(engineModule.loadTemplates).mockResolvedValue([])
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockResolvedValue([])
 
 			vi.mocked(vaultService.listDirectory).mockImplementation((_root, path) => {
 				if (path === 'Travel') {
@@ -604,7 +605,7 @@ endDate: 2026-09-17
 
 			const handle = mockDirHandleWithFolders('vault', ['Travel', '_templates'])
 			vi.mocked(vaultService.openVault).mockResolvedValue(handle)
-			vi.mocked(engineModule.loadTemplates).mockResolvedValue([])
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockResolvedValue([])
 
 			vi.mocked(vaultService.listDirectory).mockImplementation((_root, path) => {
 				if (path === 'Travel') {
@@ -653,7 +654,7 @@ endDate: 2026-01-05
 
 			const handle = mockDirHandleWithFolders('vault', ['Travel', '_templates'])
 			vi.mocked(vaultService.openVault).mockResolvedValue(handle)
-			vi.mocked(engineModule.loadTemplates).mockResolvedValue([])
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockResolvedValue([])
 
 			// Travel exists (directoryExists passes) but listDirectory throws
 			vi.mocked(vaultService.listDirectory).mockRejectedValue(new Error('Read error'))
@@ -671,7 +672,7 @@ endDate: 2026-01-05
 
 			const handle = mockDirHandleWithFolders('vault', ['Travel', '_templates'])
 			vi.mocked(vaultService.openVault).mockResolvedValue(handle)
-			vi.mocked(engineModule.loadTemplates).mockRejectedValue(new Error('Disk error'))
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockRejectedValue(new Error('Disk error'))
 
 			await vaultStore.openVault()
 
