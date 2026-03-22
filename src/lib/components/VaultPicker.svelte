@@ -120,6 +120,7 @@
 		box-shadow: var(--shadow-lg);
 		backdrop-filter: blur(22px);
 		text-align: center;
+		margin-bottom: var(--space-12);
 	}
 
 	.eyebrow {

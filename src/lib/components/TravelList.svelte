@@ -2,6 +2,7 @@
 	import { Check, Folder, Plus, TriangleAlert } from '@lucide/svelte'
 	import { uiStore } from '../stores/ui.svelte'
 	import { vaultStore } from '../stores/vault.svelte'
+	import SourceLink from './SourceLink.svelte'
 	import TripCard from './TripCard.svelte'
 
 	const sortedYears = $derived(
@@ -101,6 +102,10 @@
 		</div>
 	{/if}
 </div>
+
+<footer>
+	<div>Made by <a href='https://www.lekoarts.de/?utm_source=roamvault' target='_blank' rel='noopener noreferrer'>LekoArts</a></div><SourceLink />
+</footer>
 
 <style>
 	.travel-list {
@@ -365,5 +370,25 @@
 		.btn-secondary {
 			width: 100%;
 		}
+	}
+
+	footer {
+		margin: var(--space-20) 0 var(--space-12);
+		text-align: center;
+		font-size: 1rem;
+		color: var(--color-text-muted);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-10);
+	}
+
+	footer a {
+		color: var(--color-text-muted);
+		text-decoration: none;
+	}
+
+	footer a:hover {
+		color: var(--color-text);
 	}
 </style>
