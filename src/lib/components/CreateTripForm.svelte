@@ -70,10 +70,6 @@
 		e.preventDefault()
 		handleSave()
 	}}>
-		<div class='form-intro'>
-			<p>Choose the trip structure first, then fill in the metadata you want written into the note.</p>
-		</div>
-
 		<div class='form-fields'>
 			<FormField
 				label='Trip Name'
@@ -137,18 +133,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-10);
-	}
-
-	.form-intro {
-		padding: var(--space-6) var(--space-8);
-		border-radius: var(--radius-md);
-		background: var(--color-bg-accent);
-		border: 1px solid var(--color-border);
-	}
-
-	.form-intro p {
-		margin: 0;
-		color: var(--color-text-muted);
 	}
 
 	.form-fields {

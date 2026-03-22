@@ -84,10 +84,6 @@
 		e.preventDefault()
 		handleSave()
 	}}>
-		<div class='form-intro'>
-			<p>Add a new note inside this trip and keep the dates aligned with the trip window.</p>
-		</div>
-
 		<div class='form-fields'>
 			<FormField
 				label='Name'
@@ -135,18 +131,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-10);
-	}
-
-	.form-intro {
-		padding: var(--space-6) var(--space-8);
-		border-radius: var(--radius-md);
-		background: var(--color-bg-accent);
-		border: 1px solid var(--color-border);
-	}
-
-	.form-intro p {
-		margin: 0;
-		color: var(--color-text-muted);
 	}
 
 	.form-fields {

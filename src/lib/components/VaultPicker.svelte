@@ -1,7 +1,8 @@
 <script lang='ts'>
-	import { FolderOpen, FolderPlus, Github, Play } from '@lucide/svelte'
+	import { FolderOpen, FolderPlus, Play } from '@lucide/svelte'
 	import { uiStore } from '../stores/ui.svelte'
 	import { vaultStore } from '../stores/vault.svelte'
+	import SourceLink from './SourceLink.svelte'
 
 	let phase = $state<'checking' | 'opening' | 'ready'>('checking')
 	const unsupported = !('showDirectoryPicker' in window)
@@ -51,7 +52,7 @@
 		<div class='vault-picker-inner'>
 			<div class='eyebrow'>Travel planning inside your vault</div>
 			<div class='logo-mark'>
-				<FolderPlus size={46} strokeWidth={1.5} aria-hidden='true' />
+				<FolderPlus size={40} strokeWidth={1.5} aria-hidden='true' />
 			</div>
 
 			<h1>RoamVault</h1>
@@ -96,10 +97,7 @@
 			{/if}
 		</div>
 
-		<a class='source-link' href='https://github.com/LekoArts/roamvault' target='_blank' rel='noopener noreferrer'>
-			<Github size={14} aria-hidden='true' />
-			Source on GitHub
-		</a>
+		<SourceLink />
 	</div>
 {/if}
 
@@ -136,8 +134,8 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 88px;
-		height: 88px;
+		width: 80px;
+		height: 80px;
 		border-radius: 28px;
 		background: linear-gradient(145deg, var(--color-primary), var(--color-primary-strong));
 		color: var(--color-primary-contrast);
@@ -200,9 +198,10 @@
 	}
 
 	.supporting-copy {
-		margin: var(--space-10) 0 0;
+		margin: var(--space-10) auto 0;
 		font-size: 0.9rem;
 		color: var(--color-text-muted);
+		max-width: 40ch;
 	}
 
 	.message-card,
@@ -245,19 +244,5 @@
 		margin-top: var(--space-8);
 		color: var(--color-danger);
 		font-size: 0.875rem;
-	}
-
-	.source-link {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--space-2);
-		margin-top: var(--space-10);
-		font-size: 0.8rem;
-		color: var(--color-text-muted);
-		text-decoration: none;
-	}
-
-	.source-link:hover {
-		color: var(--color-text);
 	}
 </style>
