@@ -373,6 +373,42 @@ endDate: 2026-06-02
 Activities:
   - "[[Singapur - Photos]]"
 ---`,
+
+	'Travel/2026/Singapur & South Korea/Planning/Seoul.md': `---
+base: "[[_templates/Bases/Planning.base]]"
+backlink: "[[Singapur & South Korea]]"
+startDate: 2026-06-03
+endDate: 2026-06-04
+Activities:
+  - "[[Seoul - Photos]]"
+  - "[[Seoul Tower]]"
+---
+
+## 03.06.2026
+
+TODO
+
+## 04.06.2026
+
+TODO`,
+
+	'Travel/2026/Singapur & South Korea/Activities/Seoul Tower.md': `---
+base: "[[_templates/Bases/Activities.base]]"
+backlink: "[[Singapur & South Korea]]"
+Location: Seoul
+Done: false
+---
+
+TODO`,
+
+	'Travel/2026/Singapur & South Korea/Activities/Seoul Sky.md': `---
+base: "[[_templates/Bases/Activities.base]]"
+backlink: "[[Singapur & South Korea]]"
+Location: Seoul
+Done: false
+---
+
+TODO`,
 }
 
 // ---------- in-memory filesystem ----------

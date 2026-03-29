@@ -87,7 +87,13 @@ export function serializeFrontmatter(data: Record<string, unknown>, content: str
 			else {
 				lines.push(`${key}:`)
 				for (const item of value) {
-					lines.push(`  - ${item}`)
+					const str = String(item)
+					if (needsQuotes(str)) {
+						lines.push(`  - "${str}"`)
+					}
+					else {
+						lines.push(`  - ${str}`)
+					}
 				}
 			}
 		}

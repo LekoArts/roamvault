@@ -680,4 +680,89 @@ endDate: 2026-01-05
 			expect(vaultStore.loading).toBe(false)
 		})
 	})
+
+	describe('updateSubItemFrontmatter', () => {
+		it('updates frontmatter and persists to file', async () => {
+			const { vaultStore } = await import('./vault.svelte')
+			await vaultStore.closeVault()
+
+			const handle = mockDirHandleWithFolders('vault', ['Travel', '_templates'])
+			vi.mocked(vaultService.openVault).mockResolvedValue(handle)
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockResolvedValue([])
+			vi.mocked(vaultService.listDirectory).mockResolvedValue([])
+
+			await vaultStore.openVault()
+
+			// Set up readFile to return a planning item with Activities
+			vi.mocked(vaultService.readFile).mockResolvedValueOnce(`---
+base: "[[Planning.base]]"
+backlink: "[[Japan]]"
+startDate: 2026-05-01
+Activities:
+  - "[[Sushi]]"
+  - "[[Temple]]"
+---
+# Day 1`)
+
+			await vaultStore.updateSubItemFrontmatter(
+				'Travel/2026/Japan/Planning/Day 1.md',
+				(data) => {
+					data.Activities = (data.Activities as string[]).filter(
+						(link) => link !== '[[Temple]]',
+					)
+				},
+			)
+
+			expect(vaultService.writeFile).toHaveBeenCalled()
+			const [, , written] = vi.mocked(vaultService.writeFile).mock.calls.at(-1)!
+			expect(written).toContain('[[Sushi]]')
+			expect(written).not.toContain('[[Temple]]')
+			expect(written).toContain('# Day 1')
+		})
+
+		it('reloads data after update', async () => {
+			const { vaultStore } = await import('./vault.svelte')
+			await vaultStore.closeVault()
+
+			const handle = mockDirHandleWithFolders('vault', ['Travel', '_templates'])
+			vi.mocked(vaultService.openVault).mockResolvedValue(handle)
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockResolvedValue([])
+			vi.mocked(vaultService.listDirectory).mockResolvedValue([])
+
+			await vaultStore.openVault()
+
+			vi.mocked(vaultService.readFile).mockResolvedValueOnce(`---
+base: "[[Planning.base]]"
+Activities: []
+---`)
+
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockClear()
+
+			await vaultStore.updateSubItemFrontmatter(
+				'Travel/2026/Japan/Planning/Day 1.md',
+				(data) => {
+					data.Activities = ['[[New Activity]]']
+				},
+			)
+
+			// loadData triggers loadTemplatesFromBackend
+			expect(engineModule.loadTemplatesFromBackend).toHaveBeenCalled()
+		})
+
+		it('does nothing when no vault is open', async () => {
+			const { vaultStore } = await import('./vault.svelte')
+			await vaultStore.closeVault()
+
+			// Should not throw
+			await vaultStore.updateSubItemFrontmatter(
+				'Travel/2026/Japan/Planning/Day 1.md',
+				(data) => {
+					data.Activities = []
+				},
+			)
+
+			expect(vaultService.readFile).not.toHaveBeenCalled()
+			expect(vaultService.writeFile).not.toHaveBeenCalled()
+		})
+	})
 })

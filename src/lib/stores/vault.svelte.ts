@@ -1,7 +1,7 @@
 import type { ItemType, SubItem, TemplateDefinition, TravelTree, TripData, TripType } from '../models/types'
 import type { VaultBackend } from '../services/vault-backend'
 import type { TemplateValues } from '../templates/engine'
-import { parseFrontmatter } from '../parser/frontmatter'
+import { parseFrontmatter, serializeFrontmatter } from '../parser/frontmatter'
 import { createDemoVault } from '../services/demo-vault'
 import { openVault as openVaultPicker, verifyPermission } from '../services/vault'
 import { createDemoBackend, createFSBackend } from '../services/vault-backend'
@@ -286,5 +286,15 @@ export const vaultStore = {
 				return found
 		}
 		return undefined
+	},
+
+	async updateSubItemFrontmatter(itemPath: string, updater: (data: Record<string, unknown>) => void) {
+		if (!backend)
+			return
+		const raw = await backend.readFile(itemPath)
+		const { data, content } = parseFrontmatter(raw)
+		updater(data)
+		await backend.writeFile(itemPath, serializeFrontmatter(data, content))
+		await loadData()
 	},
 }

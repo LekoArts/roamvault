@@ -1,10 +1,37 @@
 <script lang='ts'>
+	import type { SubItem } from '../models/types'
 	import { ArrowLeft, Calendar, Plus, Users } from '@lucide/svelte'
 	import { uiStore } from '../stores/ui.svelte'
+	import { vaultStore } from '../stores/vault.svelte'
 	import { formatDateRange } from '../utils/format'
 	import ItemList from './ItemList.svelte'
+	import PlanningList from './PlanningList.svelte'
 
 	const trip = $derived(uiStore.selectedTrip!)
+
+	function stripWikiLink(link: string): string {
+		return link.replace(/^\[\[/, '').replace(/\]\]$/, '')
+	}
+
+	async function handleRemoveActivity(planningItem: SubItem, activityName: string) {
+		await vaultStore.updateSubItemFrontmatter(planningItem.path, (data) => {
+			if (Array.isArray(data.Activities)) {
+				data.Activities = (data.Activities as string[]).filter(link => stripWikiLink(link) !== activityName)
+			}
+		})
+		const updated = vaultStore.findTrip(trip.path)
+		if (updated) uiStore.updateSelectedTrip(updated)
+	}
+
+	async function handleAddActivity(planningItem: SubItem, activityName: string) {
+		await vaultStore.updateSubItemFrontmatter(planningItem.path, (data) => {
+			const arr = Array.isArray(data.Activities) ? data.Activities as string[] : []
+			arr.push(`[[${activityName}]]`)
+			data.Activities = arr
+		})
+		const updated = vaultStore.findTrip(trip.path)
+		if (updated) uiStore.updateSelectedTrip(updated)
+	}
 
 	const dateRange = $derived(formatDateRange(trip.frontmatter.startDate, trip.frontmatter.endDate))
 
@@ -126,7 +153,12 @@
 						New Day Plan
 					</button>
 				</div>
-				<ItemList items={trip.planning ?? []} label='Planning' />
+				<PlanningList
+					planningItems={trip.planning ?? []}
+					activities={trip.activities ?? []}
+					onremove={handleRemoveActivity}
+					onadd={handleAddActivity}
+				/>
 			</section>
 
 			<section class='sub-section'>
