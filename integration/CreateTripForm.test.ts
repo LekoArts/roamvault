@@ -1,5 +1,7 @@
+import { describe, expect, it, vi } from 'vitest'
 import { render } from 'vitest-browser-svelte'
-import { describe, expect, test, vi } from 'vitest'
+
+import CreateTripForm from '../src/lib/components/CreateTripForm.svelte'
 
 vi.mock('../src/lib/stores/ui.svelte', () => ({
 	uiStore: {
@@ -29,10 +31,8 @@ vi.mock('../src/lib/stores/vault.svelte', () => ({
 	},
 }))
 
-import CreateTripForm from '../src/lib/components/CreateTripForm.svelte'
-
-describe('CreateTripForm', () => {
-	test('renders and enables save when trip name is entered', async () => {
+describe('createTripForm', () => {
+	it('renders and enables save when trip name is entered', async () => {
 		const screen = await render(CreateTripForm)
 
 		await expect.element(screen.getByRole('heading', { name: 'New Trip' })).toBeVisible()

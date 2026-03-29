@@ -5,6 +5,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
 	plugins: [svelte()],
 	define: {
+		// eslint-disable-next-line node/prefer-global/process
 		__DEMO__: JSON.stringify(process.env.DEMO === 'true'),
 	},
 	test: {

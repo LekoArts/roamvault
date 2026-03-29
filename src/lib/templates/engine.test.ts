@@ -368,6 +368,46 @@ describe('processTemplate', () => {
 		expect(data.backlink).toBe('[[Albanien]]')
 	})
 
+	it('generates day headings for multi-day Planning items', () => {
+		const template = makeTemplate('Planning', PLANNING_TEMPLATE)
+		const result = processTemplate(template, {
+			tripName: 'Trip',
+			startDate: '2026-06-03',
+			endDate: '2026-06-05',
+			_itemType: 'Planning',
+		})
+		const { content } = parseFrontmatter(result)
+		expect(content).toContain('## 03.06.2026')
+		expect(content).toContain('## 04.06.2026')
+		expect(content).toContain('## 05.06.2026')
+		expect(content).toContain('### Activities')
+	})
+
+	it('generates single day heading for single-day Planning items', () => {
+		const template = makeTemplate('Planning', PLANNING_TEMPLATE)
+		const result = processTemplate(template, {
+			tripName: 'Trip',
+			startDate: '2026-06-02',
+			endDate: '2026-06-02',
+			_itemType: 'Planning',
+		})
+		const { content } = parseFrontmatter(result)
+		expect(content).toContain('## 02.06.2026')
+		expect(content).toContain('### Activities')
+		// Only one day heading
+		expect(content.match(/^## /gm)?.length).toBe(1)
+	})
+
+	it('does not generate day headings for non-Planning items', () => {
+		const template = makeTemplate('Activity', ACTIVITY_TEMPLATE)
+		const result = processTemplate(template, {
+			tripName: 'Trip',
+			_itemType: 'Activity',
+		})
+		const { content } = parseFrontmatter(result)
+		expect(content).not.toContain('### Activities')
+	})
+
 	vi.useRealTimers()
 })
 

@@ -117,13 +117,14 @@ async function scanSubItems(b: VaultBackend, path: string): Promise<SubItem[]> {
 		if (entry.kind !== 'file' || !entry.name.endsWith('.md'))
 			continue
 
-		const content = await b.readFile(entry.path)
-		const { data } = parseFrontmatter(content)
+		const raw = await b.readFile(entry.path)
+		const { data, content } = parseFrontmatter(raw)
 
 		items.push({
 			name: entry.name.replace('.md', ''),
 			path: entry.path,
 			frontmatter: data,
+			content,
 		})
 	}
 
@@ -252,7 +253,7 @@ export const vaultStore = {
 			throw new Error(`Template not found for ${itemType}`)
 
 		const path = getTargetPath(tripType, itemType, year, tripName, itemName)
-		const content = processTemplate(template, { ...values, tripName })
+		const content = processTemplate(template, { ...values, tripName, _itemType: itemType })
 
 		await backend.writeFile(path, content)
 		await loadData()
@@ -288,13 +289,18 @@ export const vaultStore = {
 		return undefined
 	},
 
-	async updateSubItemFrontmatter(itemPath: string, updater: (data: Record<string, unknown>) => void) {
+	async updateSubItem(
+		itemPath: string,
+		updater: (data: Record<string, unknown>) => void,
+		contentUpdater?: (content: string) => string,
+	) {
 		if (!backend)
 			return
 		const raw = await backend.readFile(itemPath)
 		const { data, content } = parseFrontmatter(raw)
 		updater(data)
-		await backend.writeFile(itemPath, serializeFrontmatter(data, content))
+		const updatedContent = contentUpdater ? contentUpdater(content) : content
+		await backend.writeFile(itemPath, serializeFrontmatter(data, updatedContent))
 		await loadData()
 	},
 }

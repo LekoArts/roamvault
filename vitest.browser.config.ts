@@ -3,6 +3,9 @@ import { playwright } from '@vitest/browser-playwright'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
+	define: {
+		__DEMO__: false,
+	},
 	plugins: [svelte()],
 	test: {
 		include: ['integration/**/*.test.ts'],

@@ -1,5 +1,8 @@
+import { describe, expect, it, vi } from 'vitest'
 import { render } from 'vitest-browser-svelte'
-import { describe, expect, test, vi } from 'vitest'
+
+import TripCard from '../src/lib/components/TripCard.svelte'
+import { uiStore } from '../src/lib/stores/ui.svelte'
 
 vi.mock('../src/lib/stores/ui.svelte', () => ({
 	uiStore: {
@@ -7,11 +10,8 @@ vi.mock('../src/lib/stores/ui.svelte', () => ({
 	},
 }))
 
-import TripCard from '../src/lib/components/TripCard.svelte'
-import { uiStore } from '../src/lib/stores/ui.svelte'
-
-describe('TripCard', () => {
-	test('renders trip info and calls selectTrip on click', async () => {
+describe('tripCard', () => {
+	it('renders trip info and calls selectTrip on click', async () => {
 		const trip = {
 			name: 'Rome',
 			year: '2026',

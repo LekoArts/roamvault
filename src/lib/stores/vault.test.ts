@@ -681,7 +681,7 @@ endDate: 2026-01-05
 		})
 	})
 
-	describe('updateSubItemFrontmatter', () => {
+	describe('updateSubItem', () => {
 		it('updates frontmatter and persists to file', async () => {
 			const { vaultStore } = await import('./vault.svelte')
 			await vaultStore.closeVault()
@@ -704,11 +704,11 @@ Activities:
 ---
 # Day 1`)
 
-			await vaultStore.updateSubItemFrontmatter(
+			await vaultStore.updateSubItem(
 				'Travel/2026/Japan/Planning/Day 1.md',
 				(data) => {
 					data.Activities = (data.Activities as string[]).filter(
-						(link) => link !== '[[Temple]]',
+						(link: string) => link !== '[[Temple]]',
 					)
 				},
 			)
@@ -718,6 +718,45 @@ Activities:
 			expect(written).toContain('[[Sushi]]')
 			expect(written).not.toContain('[[Temple]]')
 			expect(written).toContain('# Day 1')
+		})
+
+		it('applies contentUpdater to body when provided', async () => {
+			const { vaultStore } = await import('./vault.svelte')
+			await vaultStore.closeVault()
+
+			const handle = mockDirHandleWithFolders('vault', ['Travel', '_templates'])
+			vi.mocked(vaultService.openVault).mockResolvedValue(handle)
+			vi.mocked(engineModule.loadTemplatesFromBackend).mockResolvedValue([])
+			vi.mocked(vaultService.listDirectory).mockResolvedValue([])
+
+			await vaultStore.openVault()
+
+			vi.mocked(vaultService.readFile).mockResolvedValueOnce(`---
+base: "[[Planning.base]]"
+Activities:
+  - "[[Sushi]]"
+---
+
+## 01.05.2026
+
+### Activities
+
+- [[Sushi]]`)
+
+			await vaultStore.updateSubItem(
+				'Travel/2026/Japan/Planning/Day 1.md',
+				(data) => {
+					const arr = Array.isArray(data.Activities) ? data.Activities as string[] : []
+					arr.push('[[Ramen]]')
+					data.Activities = arr
+				},
+				content => content.replace('- [[Sushi]]', '- [[Sushi]]\n- [[Ramen]]'),
+			)
+
+			expect(vaultService.writeFile).toHaveBeenCalled()
+			const [, , written] = vi.mocked(vaultService.writeFile).mock.calls.at(-1)!
+			expect(written).toContain('[[Ramen]]')
+			expect(written).toContain('[[Sushi]]')
 		})
 
 		it('reloads data after update', async () => {
@@ -738,7 +777,7 @@ Activities: []
 
 			vi.mocked(engineModule.loadTemplatesFromBackend).mockClear()
 
-			await vaultStore.updateSubItemFrontmatter(
+			await vaultStore.updateSubItem(
 				'Travel/2026/Japan/Planning/Day 1.md',
 				(data) => {
 					data.Activities = ['[[New Activity]]']
@@ -754,7 +793,7 @@ Activities: []
 			await vaultStore.closeVault()
 
 			// Should not throw
-			await vaultStore.updateSubItemFrontmatter(
+			await vaultStore.updateSubItem(
 				'Travel/2026/Japan/Planning/Day 1.md',
 				(data) => {
 					data.Activities = []

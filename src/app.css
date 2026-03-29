@@ -59,9 +59,9 @@
 	--max-width: 1120px;
 
 	/* Typography */
-	--font-sans: "Inter", "SF Pro Display", "Segoe UI", system-ui, sans-serif;
-	--font-serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
-	--font-mono: "SFMono-Regular", Menlo, Consolas, Monaco, monospace;
+	--font-sans: 'Inter', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+	--font-serif: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+	--font-mono: 'SFMono-Regular', Menlo, Consolas, Monaco, monospace;
 
 	font-family: var(--font-sans);
 	line-height: 1.5;
@@ -142,7 +142,13 @@ body::before {
 	pointer-events: none;
 	background:
 		linear-gradient(135deg, rgba(255, 255, 255, 0.16), transparent 40%),
-		repeating-linear-gradient(180deg, rgba(122, 84, 51, 0.025) 0, rgba(122, 84, 51, 0.025) 1px, transparent 1px, transparent 24px);
+		repeating-linear-gradient(
+			180deg,
+			rgba(122, 84, 51, 0.025) 0,
+			rgba(122, 84, 51, 0.025) 1px,
+			transparent 1px,
+			transparent 24px
+		);
 	opacity: 0.8;
 }
 

@@ -1,5 +1,7 @@
+import { describe, expect, it, vi } from 'vitest'
 import { render } from 'vitest-browser-svelte'
-import { describe, expect, test, vi } from 'vitest'
+
+import CreateItemForm from '../src/lib/components/CreateItemForm.svelte'
 
 vi.mock('../src/lib/stores/ui.svelte', () => ({
 	uiStore: {
@@ -39,10 +41,8 @@ vi.mock('../src/lib/stores/vault.svelte', () => ({
 	},
 }))
 
-import CreateItemForm from '../src/lib/components/CreateItemForm.svelte'
-
-describe('CreateItemForm', () => {
-	test('renders and enables save when item name is entered', async () => {
+describe('createItemForm', () => {
+	it('renders and enables save when item name is entered', async () => {
 		const screen = await render(CreateItemForm)
 		await expect.element(screen.getByRole('heading', { name: 'New Day Plan' })).toBeVisible()
 

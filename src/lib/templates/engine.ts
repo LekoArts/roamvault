@@ -141,11 +141,31 @@ export function processTemplate(
 	const now = new Date()
 	const startStr = typeof values.startDate === 'string' ? values.startDate : formatDate(now)
 	const fallbackDate = new Date(startStr)
-	const processedContent = content
+	let processedContent = content
 		.replace(DATE_PLACEHOLDER, formatDate(fallbackDate))
 		.replace(DATE_FMT_PLACEHOLDER, formatDateDisplay(fallbackDate))
 
+	// For Planning items, append day headings with Activities sections
+	if (values._itemType === 'Planning') {
+		const endStr = typeof values.endDate === 'string' ? values.endDate : startStr
+		processedContent = generateDayHeadings(startStr, endStr)
+	}
+
 	return serializeFrontmatter(data, processedContent)
+}
+
+function generateDayHeadings(startDate: string, endDate: string): string {
+	const start = new Date(`${startDate}T00:00:00`)
+	const end = new Date(`${endDate}T00:00:00`)
+	const sections: string[] = []
+	const current = new Date(start)
+
+	while (current <= end) {
+		sections.push(`## ${formatDateDisplay(current)}\n\n### Activities`)
+		current.setDate(current.getDate() + 1)
+	}
+
+	return `\n${sections.join('\n\n')}\n`
 }
 
 export function getTargetPath(

@@ -6,6 +6,7 @@ export interface SubItem {
 	name: string
 	path: string
 	frontmatter: Record<string, unknown>
+	content?: string
 }
 
 export interface TripClassificationMetadata {

@@ -1,7 +1,9 @@
 <script lang='ts'>
 	import type { SubItem } from '../models/types'
 	import { ChevronRight, MapPin, Plus, X } from '@lucide/svelte'
+	import { parseDayActivities } from '../parser/planning'
 	import { formatDate } from '../utils/format'
+	import { stripWikiLink } from '../utils/wiki-link'
 
 	const {
 		planningItems,
@@ -11,8 +13,8 @@
 	}: {
 		planningItems: SubItem[]
 		activities: SubItem[]
-		onremove?: (planningItem: SubItem, activityName: string) => void
-		onadd?: (planningItem: SubItem, activityName: string) => void
+		onremove?: (planningItem: SubItem, activityName: string, date?: string) => void
+		onadd?: (planningItem: SubItem, activityName: string, date?: string) => void
 	} = $props()
 
 	const sorted = $derived(
@@ -23,19 +25,30 @@
 		}),
 	)
 
-	function stripWikiLink(link: string): string {
-		return link.replace(/^\[\[/, '').replace(/\]\]$/, '')
-	}
-
 	function resolveActivities(item: SubItem): { name: string, activity: SubItem | null }[] {
 		const raw = item.frontmatter.Activities
-		if (!raw || !Array.isArray(raw) || raw.length === 0) return []
+		if (!raw || !Array.isArray(raw) || raw.length === 0)
+			return []
 
 		return (raw as string[]).map((link) => {
 			const name = stripWikiLink(String(link))
-			const found = activities.find((a) => a.name === name) ?? null
+			const found = activities.find(a => a.name === name) ?? null
 			return { name, activity: found }
 		})
+	}
+
+	function isMultiDay(item: SubItem): boolean {
+		return !!item.frontmatter.startDate
+			&& !!item.frontmatter.endDate
+			&& item.frontmatter.startDate !== item.frontmatter.endDate
+	}
+
+	function getDayActivities(item: SubItem): Map<string, string[]> {
+		return parseDayActivities(item.content ?? '')
+	}
+
+	function resolveActivity(name: string): SubItem | null {
+		return activities.find(a => a.name === name) ?? null
 	}
 
 	function getAvailableActivities(item: SubItem): SubItem[] {
@@ -46,7 +59,7 @@
 				linkedNames.add(stripWikiLink(String(link)))
 			}
 		}
-		return activities.filter((a) => !linkedNames.has(a.name))
+		return activities.filter(a => !linkedNames.has(a.name))
 	}
 </script>
 
@@ -55,7 +68,7 @@
 		<p class='empty'>No planning yet</p>
 	{:else}
 		{#each sorted as item (item.path)}
-			{@const linked = resolveActivities(item)}
+			{@const multiDay = isMultiDay(item)}
 			{@const available = getAvailableActivities(item)}
 			<details class='planning-item'>
 				<summary class='planning-summary'>
@@ -71,54 +84,123 @@
 					{/if}
 				</summary>
 				<div class='planning-content'>
-					{#if linked.length === 0}
-						<p class='no-activities'>No activities planned</p>
+					{#if multiDay}
+						{@const dayMap = getDayActivities(item)}
+						{#each [...dayMap.entries()] as [date, dayActivityNames] (date)}
+							<div class='day-group'>
+								<h4 class='day-heading'>{date}</h4>
+								{#if dayActivityNames.length === 0}
+									<p class='no-activities'>No activities for this day</p>
+								{:else}
+									<ul class='activity-list'>
+										{#each dayActivityNames as actName}
+											{@const activity = resolveActivity(actName)}
+											<li class='activity-item'>
+												<span class='activity-name'>{actName}</span>
+												<span class='activity-actions'>
+													{#if activity?.frontmatter.Location}
+														<span class='activity-location'>
+															<MapPin size={12} aria-hidden='true' />
+															{activity.frontmatter.Location}
+														</span>
+													{:else if !activity}
+														<span class='activity-missing'>not found</span>
+													{/if}
+													{#if onremove}
+														<button
+															class='btn-remove'
+															aria-label='Remove {actName} from {date}'
+															onclick={() => onremove(item, actName, date)}
+														>
+															<X size={14} />
+														</button>
+													{/if}
+												</span>
+											</li>
+										{/each}
+									</ul>
+								{/if}
+							</div>
+						{/each}
+						{#if onadd && available.length > 0}
+							<div class='add-activity-row'>
+								<select class='add-activity-select day-select' aria-label='Select day' data-planning-day={item.name}>
+									{#each [...dayMap.keys()] as date}
+										<option value={date}>{date}</option>
+									{/each}
+								</select>
+								<select class='add-activity-select' aria-label='Select activity to add' data-planning={item.name}>
+									{#each available as act}
+										<option value={act.name}>{act.name}</option>
+									{/each}
+								</select>
+								<button
+									class='btn-add-activity'
+									aria-label='Add activity'
+									onclick={(e) => {
+										const btn = e.currentTarget as HTMLElement
+										const actSelect = btn.previousElementSibling as HTMLSelectElement
+										const daySelect = actSelect.previousElementSibling as HTMLSelectElement
+										if (actSelect?.value && daySelect?.value)
+											onadd(item, actSelect.value, daySelect.value)
+									}}
+								>
+									<Plus size={14} />
+								</button>
+							</div>
+						{/if}
 					{:else}
-						<ul class='activity-list'>
-							{#each linked as { name, activity }}
-								<li class='activity-item'>
-									<span class='activity-name'>{name}</span>
-									<span class='activity-actions'>
-										{#if activity?.frontmatter.Location}
-											<span class='activity-location'>
-												<MapPin size={12} aria-hidden='true' />
-												{activity.frontmatter.Location}
-											</span>
-										{:else if !activity}
-											<span class='activity-missing'>not found</span>
-										{/if}
-										{#if onremove}
-											<button
-												class='btn-remove'
-												aria-label='Remove {name}'
-												onclick={() => onremove(item, name)}
-											>
-												<X size={14} />
-											</button>
-										{/if}
-									</span>
-								</li>
-							{/each}
-						</ul>
-					{/if}
-					{#if onadd && available.length > 0}
-						<div class='add-activity-row'>
-							<select class='add-activity-select' aria-label='Select activity to add' data-planning={item.name}>
-								{#each available as act}
-									<option value={act.name}>{act.name}</option>
+						{@const linked = resolveActivities(item)}
+						{#if linked.length === 0}
+							<p class='no-activities'>No activities planned</p>
+						{:else}
+							<ul class='activity-list'>
+								{#each linked as { name, activity }}
+									<li class='activity-item'>
+										<span class='activity-name'>{name}</span>
+										<span class='activity-actions'>
+											{#if activity?.frontmatter.Location}
+												<span class='activity-location'>
+													<MapPin size={12} aria-hidden='true' />
+													{activity.frontmatter.Location}
+												</span>
+											{:else if !activity}
+												<span class='activity-missing'>not found</span>
+											{/if}
+											{#if onremove}
+												<button
+													class='btn-remove'
+													aria-label='Remove {name}'
+													onclick={() => onremove(item, name)}
+												>
+													<X size={14} />
+												</button>
+											{/if}
+										</span>
+									</li>
 								{/each}
-							</select>
-							<button
-								class='btn-add-activity'
-								aria-label='Add activity'
-								onclick={(e) => {
-									const select = (e.currentTarget as HTMLElement).previousElementSibling as HTMLSelectElement
-									if (select?.value) onadd(item, select.value)
-								}}
-							>
-								<Plus size={14} />
-							</button>
-						</div>
+							</ul>
+						{/if}
+						{#if onadd && available.length > 0}
+							<div class='add-activity-row'>
+								<select class='add-activity-select' aria-label='Select activity to add' data-planning={item.name}>
+									{#each available as act}
+										<option value={act.name}>{act.name}</option>
+									{/each}
+								</select>
+								<button
+									class='btn-add-activity'
+									aria-label='Add activity'
+									onclick={(e) => {
+										const select = (e.currentTarget as HTMLElement).previousElementSibling as HTMLSelectElement
+										if (select?.value)
+											onadd(item, select.value)
+									}}
+								>
+									<Plus size={14} />
+								</button>
+							</div>
+						{/if}
 					{/if}
 				</div>
 			</details>
@@ -213,6 +295,23 @@
 		margin-left: calc(14px + var(--space-4));
 	}
 
+	.day-group {
+		margin-bottom: var(--space-4);
+	}
+
+	.day-group:last-child {
+		margin-bottom: 0;
+	}
+
+	.day-heading {
+		font-size: 0.82rem;
+		font-weight: 600;
+		color: var(--color-text-muted);
+		margin: 0 0 var(--space-3) 0;
+		padding-bottom: var(--space-2);
+		border-bottom: 1px solid var(--color-border);
+	}
+
 	.no-activities {
 		margin: 0;
 		font-size: 0.85rem;
@@ -303,6 +402,10 @@
 		color: var(--color-text);
 		font-size: 0.85rem;
 		font-family: var(--font-sans);
+	}
+
+	.day-select {
+		max-width: 140px;
 	}
 
 	.btn-add-activity {

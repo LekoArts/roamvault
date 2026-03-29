@@ -363,7 +363,10 @@ endDate: 2026-06-01
 Activities:
 ---
 
-- TODO`,
+## 01.06.2026
+
+### Activities
+`,
 
 	'Travel/2026/Singapur & South Korea/Planning/Singapur.md': `---
 base: "[[_templates/Bases/Planning.base]]"
@@ -372,7 +375,13 @@ startDate: 2026-06-02
 endDate: 2026-06-02
 Activities:
   - "[[Singapur - Photos]]"
----`,
+---
+
+## 02.06.2026
+
+### Activities
+- [[Singapur - Photos]]
+`,
 
 	'Travel/2026/Singapur & South Korea/Planning/Seoul.md': `---
 base: "[[_templates/Bases/Planning.base]]"
@@ -386,11 +395,13 @@ Activities:
 
 ## 03.06.2026
 
-TODO
+### Activities
+- [[Seoul - Photos]]
 
 ## 04.06.2026
 
-TODO`,
+### Activities
+- [[Seoul Tower]]`,
 
 	'Travel/2026/Singapur & South Korea/Activities/Seoul Tower.md': `---
 base: "[[_templates/Bases/Activities.base]]"
@@ -432,7 +443,8 @@ export function memListDirectory(fs: MemoryFS, path: string): { name: string, ki
 	const entries: { name: string, kind: 'file' | 'directory', path: string }[] = []
 
 	for (const filePath of fs.files.keys()) {
-		if (!filePath.startsWith(prefix)) continue
+		if (!filePath.startsWith(prefix))
+			continue
 
 		const rest = filePath.slice(prefix.length)
 		const slashIdx = rest.indexOf('/')
@@ -440,7 +452,8 @@ export function memListDirectory(fs: MemoryFS, path: string): { name: string, ki
 		const kind = slashIdx === -1 ? 'file' as const : 'directory' as const
 		const entryPath = prefix + name
 
-		if (seen.has(entryPath)) continue
+		if (seen.has(entryPath))
+			continue
 		seen.add(entryPath)
 
 		entries.push({ name, kind, path: entryPath })
@@ -451,7 +464,8 @@ export function memListDirectory(fs: MemoryFS, path: string): { name: string, ki
 
 export function memReadFile(fs: MemoryFS, path: string): string {
 	const content = fs.files.get(path)
-	if (content === undefined) throw new Error(`File not found: ${path}`)
+	if (content === undefined)
+		throw new Error(`File not found: ${path}`)
 	return content
 }
 
@@ -466,7 +480,8 @@ export function memFileExists(fs: MemoryFS, path: string): boolean {
 export function memDirectoryExists(fs: MemoryFS, name: string): boolean {
 	const prefix = `${name}/`
 	for (const key of fs.files.keys()) {
-		if (key.startsWith(prefix)) return true
+		if (key.startsWith(prefix))
+			return true
 	}
 	return false
 }

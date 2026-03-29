@@ -1,36 +1,44 @@
 <script lang='ts'>
 	import type { SubItem } from '../models/types'
 	import { ArrowLeft, Calendar, Plus, Users } from '@lucide/svelte'
+	import { updateDayActivity } from '../parser/planning'
 	import { uiStore } from '../stores/ui.svelte'
 	import { vaultStore } from '../stores/vault.svelte'
 	import { formatDateRange } from '../utils/format'
+	import { stripWikiLink } from '../utils/wiki-link'
 	import ItemList from './ItemList.svelte'
 	import PlanningList from './PlanningList.svelte'
 
 	const trip = $derived(uiStore.selectedTrip!)
 
-	function stripWikiLink(link: string): string {
-		return link.replace(/^\[\[/, '').replace(/\]\]$/, '')
+	async function handleRemoveActivity(planningItem: SubItem, activityName: string, date?: string) {
+		await vaultStore.updateSubItem(
+			planningItem.path,
+			(data) => {
+				if (Array.isArray(data.Activities)) {
+					data.Activities = (data.Activities as string[]).filter(link => stripWikiLink(link) !== activityName)
+				}
+			},
+			date ? content => updateDayActivity(content, date, activityName, 'remove') : undefined,
+		)
+		const updated = vaultStore.findTrip(trip.path)
+		if (updated)
+			uiStore.updateSelectedTrip(updated)
 	}
 
-	async function handleRemoveActivity(planningItem: SubItem, activityName: string) {
-		await vaultStore.updateSubItemFrontmatter(planningItem.path, (data) => {
-			if (Array.isArray(data.Activities)) {
-				data.Activities = (data.Activities as string[]).filter(link => stripWikiLink(link) !== activityName)
-			}
-		})
+	async function handleAddActivity(planningItem: SubItem, activityName: string, date?: string) {
+		await vaultStore.updateSubItem(
+			planningItem.path,
+			(data) => {
+				const arr = Array.isArray(data.Activities) ? data.Activities as string[] : []
+				arr.push(`[[${activityName}]]`)
+				data.Activities = arr
+			},
+			date ? content => updateDayActivity(content, date, activityName, 'add') : undefined,
+		)
 		const updated = vaultStore.findTrip(trip.path)
-		if (updated) uiStore.updateSelectedTrip(updated)
-	}
-
-	async function handleAddActivity(planningItem: SubItem, activityName: string) {
-		await vaultStore.updateSubItemFrontmatter(planningItem.path, (data) => {
-			const arr = Array.isArray(data.Activities) ? data.Activities as string[] : []
-			arr.push(`[[${activityName}]]`)
-			data.Activities = arr
-		})
-		const updated = vaultStore.findTrip(trip.path)
-		if (updated) uiStore.updateSelectedTrip(updated)
+		if (updated)
+			uiStore.updateSelectedTrip(updated)
 	}
 
 	const dateRange = $derived(formatDateRange(trip.frontmatter.startDate, trip.frontmatter.endDate))

@@ -1,5 +1,8 @@
+import { describe, expect, it, vi } from 'vitest'
 import { render } from 'vitest-browser-svelte'
-import { describe, expect, test, vi } from 'vitest'
+
+import VaultPicker from '../src/lib/components/VaultPicker.svelte'
+import { uiStore } from '../src/lib/stores/ui.svelte'
 
 vi.mock('../src/lib/stores/ui.svelte', () => ({
 	uiStore: {
@@ -18,11 +21,8 @@ vi.mock('../src/lib/stores/vault.svelte', () => ({
 	},
 }))
 
-import VaultPicker from '../src/lib/components/VaultPicker.svelte'
-import { uiStore } from '../src/lib/stores/ui.svelte'
-
-describe('VaultPicker', () => {
-	test('renders open vault button and navigates on open', async () => {
+describe('vaultPicker', () => {
+	it('renders open vault button and navigates on open', async () => {
 		Object.defineProperty(window, 'showDirectoryPicker', {
 			configurable: true,
 			value: vi.fn(),
