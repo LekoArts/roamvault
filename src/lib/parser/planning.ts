@@ -118,5 +118,21 @@ export function updateDayActivity(
 		result.push(line)
 	}
 
+	// If adding and the target date heading was never found, append a new section
+	if (action === 'add') {
+		const dateFound = result.some(l => DATE_HEADING_RE.test(l) && l.includes(date))
+		if (!dateFound) {
+			// Ensure a blank line before the new section
+			const last = result.at(-1)
+			if (last !== undefined && last.trim() !== '') {
+				result.push('')
+			}
+			result.push(`## ${date}`)
+			result.push('')
+			result.push('### Activities')
+			result.push(`- [[${activityName}]]`)
+		}
+	}
+
 	return result.join('\n')
 }

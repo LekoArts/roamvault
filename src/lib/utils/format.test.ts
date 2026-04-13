@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatDate, formatDateRange } from './format'
+import { formatDate, formatDateRange, generateDateRange } from './format'
 
 describe('formatDate', () => {
 	it('formats a YYYY-MM-DD string', () => {
@@ -48,5 +48,35 @@ describe('formatDateRange', () => {
 	it('returns empty string when no start date', () => {
 		expect(formatDateRange('', '2026-04-10')).toBe('')
 		expect(formatDateRange(null, null)).toBe('')
+	})
+})
+
+describe('generateDateRange', () => {
+	it('generates dates for a multi-day range', () => {
+		const result = generateDateRange('2026-06-02', '2026-06-04')
+		expect(result).toEqual(['02.06.2026', '03.06.2026', '04.06.2026'])
+	})
+
+	it('returns a single date when start equals end', () => {
+		const result = generateDateRange('2026-06-02', '2026-06-02')
+		expect(result).toEqual(['02.06.2026'])
+	})
+
+	it('returns a single date when no end date', () => {
+		const result = generateDateRange('2026-06-02', '')
+		expect(result).toEqual(['02.06.2026'])
+	})
+
+	it('returns empty array for empty start date', () => {
+		expect(generateDateRange('', '2026-06-04')).toEqual([])
+	})
+
+	it('returns empty array for non-string input', () => {
+		expect(generateDateRange(null, null)).toEqual([])
+		expect(generateDateRange(undefined, undefined)).toEqual([])
+	})
+
+	it('returns empty array for invalid date strings', () => {
+		expect(generateDateRange('not-a-date', '2026-06-04')).toEqual([])
 	})
 })

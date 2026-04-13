@@ -2,7 +2,7 @@
 	import type { SubItem } from '../models/types'
 	import { ChevronRight, MapPin, Plus, X } from '@lucide/svelte'
 	import { parseDayActivities } from '../parser/planning'
-	import { formatDate } from '../utils/format'
+	import { formatDate, generateDateRange } from '../utils/format'
 	import { stripWikiLink } from '../utils/wiki-link'
 
 	const {
@@ -86,7 +86,9 @@
 				<div class='planning-content'>
 					{#if multiDay}
 						{@const dayMap = getDayActivities(item)}
-						{#each [...dayMap.entries()] as [date, dayActivityNames] (date)}
+						{@const allDays = generateDateRange(item.frontmatter.startDate, item.frontmatter.endDate)}
+						{#each allDays as date (date)}
+							{@const dayActivityNames = dayMap.get(date) ?? []}
 							<div class='day-group'>
 								<h4 class='day-heading'>{date}</h4>
 								{#if dayActivityNames.length === 0}
@@ -125,7 +127,7 @@
 						{#if onadd && available.length > 0}
 							<div class='add-activity-row'>
 								<select class='add-activity-select day-select' aria-label='Select day' data-planning-day={item.name}>
-									{#each [...dayMap.keys()] as date}
+									{#each allDays as date}
 										<option value={date}>{date}</option>
 									{/each}
 								</select>

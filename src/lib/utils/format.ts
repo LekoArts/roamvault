@@ -14,6 +14,26 @@ export function formatDate(dateStr: unknown): string {
 	return dateFormatter.format(date)
 }
 
+/**
+ * Generate an array of `DD.MM.YYYY` strings for each day in a
+ * `startDate`..`endDate` range (inclusive). Inputs are `YYYY-MM-DD`.
+ */
+export function generateDateRange(startDate: unknown, endDate: unknown): string[] {
+	if (typeof startDate !== 'string' || !startDate)
+		return []
+	const end = typeof endDate === 'string' && endDate ? endDate : startDate
+	const start = new Date(`${startDate}T00:00:00`)
+	const last = new Date(`${end}T00:00:00`)
+	if (Number.isNaN(start.getTime()) || Number.isNaN(last.getTime()))
+		return []
+	const dates: string[] = []
+	const lastTime = last.getTime()
+	for (let ts = start.getTime(); ts <= lastTime; ts += 86_400_000) {
+		dates.push(dateFormatter.format(new Date(ts)))
+	}
+	return dates
+}
+
 /** Format a date range from two YYYY-MM-DD strings. */
 export function formatDateRange(start: unknown, end: unknown): string {
 	const s = formatDate(start)

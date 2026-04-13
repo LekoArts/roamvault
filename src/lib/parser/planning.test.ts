@@ -110,10 +110,22 @@ describe('updateDayActivity', () => {
 		expect(result).toBe(multiDayBody)
 	})
 
-	it('does nothing when adding to a non-existent date', () => {
-		const result = updateDayActivity(multiDayBody, '99.99.9999', 'Ghost', 'add')
-		// Should not crash, body unchanged since date not found
+	it('creates a new date section when adding to a date not in the body', () => {
+		const result = updateDayActivity(multiDayBody, '05.06.2026', 'New Day Activity', 'add')
 		const parsed = parseDayActivities(result)
-		expect(parsed.size).toBe(2)
+		expect(parsed.size).toBe(3)
+		expect(parsed.get('05.06.2026')).toEqual(['New Day Activity'])
+		// Existing days are preserved
+		expect(parsed.get('03.06.2026')).toEqual(['Seoul - Photos'])
+		expect(parsed.get('04.06.2026')).toEqual(['Seoul Tower'])
+	})
+
+	it('creates a date section in an empty body', () => {
+		const result = updateDayActivity('', '02.06.2026', 'Beach', 'add')
+		const parsed = parseDayActivities(result)
+		expect(parsed.size).toBe(1)
+		expect(parsed.get('02.06.2026')).toEqual(['Beach'])
+		expect(result).toContain('## 02.06.2026')
+		expect(result).toContain('### Activities\n- [[Beach]]')
 	})
 })
