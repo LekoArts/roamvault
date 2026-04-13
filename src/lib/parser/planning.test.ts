@@ -110,14 +110,46 @@ describe('updateDayActivity', () => {
 		expect(result).toBe(multiDayBody)
 	})
 
-	it('creates a new date section when adding to a date not in the body', () => {
+	it('creates a new date section after existing dates when later', () => {
 		const result = updateDayActivity(multiDayBody, '05.06.2026', 'New Day Activity', 'add')
 		const parsed = parseDayActivities(result)
 		expect(parsed.size).toBe(3)
 		expect(parsed.get('05.06.2026')).toEqual(['New Day Activity'])
-		// Existing days are preserved
 		expect(parsed.get('03.06.2026')).toEqual(['Seoul - Photos'])
 		expect(parsed.get('04.06.2026')).toEqual(['Seoul Tower'])
+		// Chronological order: 03, 04, 05
+		const keys = [...parsed.keys()]
+		expect(keys).toEqual(['03.06.2026', '04.06.2026', '05.06.2026'])
+	})
+
+	it('inserts a new date section before later dates when earlier', () => {
+		const result = updateDayActivity(multiDayBody, '02.06.2026', 'Early Activity', 'add')
+		const parsed = parseDayActivities(result)
+		expect(parsed.size).toBe(3)
+		expect(parsed.get('02.06.2026')).toEqual(['Early Activity'])
+		// Chronological order: 02, 03, 04
+		const keys = [...parsed.keys()]
+		expect(keys).toEqual(['02.06.2026', '03.06.2026', '04.06.2026'])
+	})
+
+	it('inserts a new date section between existing dates', () => {
+		// Remove 04 activities first, then add a 03.5 (using 04 slot via a gap test)
+		// Simpler: use multiDayBody which has 03 and 04, insert 03.5 doesn't exist
+		// so insert 04.06 between — wait, 04 already exists. Use an earlier gap.
+		const body = `## 01.06.2026
+
+### Activities
+- [[A]]
+
+## 05.06.2026
+
+### Activities
+- [[B]]`
+		const result = updateDayActivity(body, '03.06.2026', 'Middle', 'add')
+		const parsed = parseDayActivities(result)
+		const keys = [...parsed.keys()]
+		expect(keys).toEqual(['01.06.2026', '03.06.2026', '05.06.2026'])
+		expect(parsed.get('03.06.2026')).toEqual(['Middle'])
 	})
 
 	it('creates a date section in an empty body', () => {
@@ -127,5 +159,15 @@ describe('updateDayActivity', () => {
 		expect(parsed.get('02.06.2026')).toEqual(['Beach'])
 		expect(result).toContain('## 02.06.2026')
 		expect(result).toContain('### Activities\n- [[Beach]]')
+	})
+
+	it('maintains chronological order when adding multiple dates to empty body', () => {
+		let body = ''
+		body = updateDayActivity(body, '05.06.2026', 'Late', 'add')
+		body = updateDayActivity(body, '01.06.2026', 'Early', 'add')
+		body = updateDayActivity(body, '03.06.2026', 'Middle', 'add')
+		const parsed = parseDayActivities(body)
+		const keys = [...parsed.keys()]
+		expect(keys).toEqual(['01.06.2026', '03.06.2026', '05.06.2026'])
 	})
 })

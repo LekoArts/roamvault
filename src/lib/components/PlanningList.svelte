@@ -59,7 +59,9 @@
 				linkedNames.add(stripWikiLink(String(link)))
 			}
 		}
-		return activities.filter(a => !linkedNames.has(a.name))
+		return activities
+			.filter(a => !linkedNames.has(a.name))
+			.toSorted((a, b) => a.name.localeCompare(b.name))
 	}
 </script>
 

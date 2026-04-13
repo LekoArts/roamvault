@@ -2,6 +2,12 @@ const DATE_HEADING_RE = /^## (\d{2}\.\d{2}\.\d{4})/
 const HEADING_RE = /^#{2,3} /
 const WIKI_LINK_RE = /^- \[\[(.+?)\]\]$/
 
+/** Parse a `DD.MM.YYYY` string into a comparable timestamp. */
+function parseDDMMYYYY(str: string): number {
+	const [d, m, y] = str.split('.')
+	return new Date(`${y}-${m}-${d}T00:00:00`).getTime()
+}
+
 /**
  * Parse day-grouped activities from a planning item's markdown body.
  *
@@ -118,19 +124,38 @@ export function updateDayActivity(
 		result.push(line)
 	}
 
-	// If adding and the target date heading was never found, append a new section
+	// If adding and the target date heading was never found, insert in chronological order
 	if (action === 'add') {
 		const dateFound = result.some(l => DATE_HEADING_RE.test(l) && l.includes(date))
 		if (!dateFound) {
-			// Ensure a blank line before the new section
-			const last = result.at(-1)
-			if (last !== undefined && last.trim() !== '') {
-				result.push('')
+			const newSection = [`## ${date}`, '', '### Activities', `- [[${activityName}]]`]
+			const newTs = parseDDMMYYYY(date)
+
+			// Find the first existing date heading that comes after the new date
+			let insertIdx = -1
+			for (let i = 0; i < result.length; i++) {
+				const m = DATE_HEADING_RE.exec(result[i])
+				if (m) {
+					const existingTs = parseDDMMYYYY(m[1])
+					if (existingTs > newTs) {
+						insertIdx = i
+						break
+					}
+				}
 			}
-			result.push(`## ${date}`)
-			result.push('')
-			result.push('### Activities')
-			result.push(`- [[${activityName}]]`)
+
+			if (insertIdx === -1) {
+				// Append at end
+				const last = result.at(-1)
+				if (last !== undefined && last.trim() !== '') {
+					result.push('')
+				}
+				result.push(...newSection)
+			}
+			else {
+				// Insert before the later date, with a blank line after
+				result.splice(insertIdx, 0, ...newSection, '')
+			}
 		}
 	}
 
