@@ -100,11 +100,14 @@
 		border: 1px solid var(--color-border);
 		cursor: pointer;
 		color: var(--color-text-muted);
-		padding: var(--space-2);
+		width: 36px;
+		height: 36px;
+		padding: 0;
 		border-radius: 999px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		flex-shrink: 0;
 	}
 
 	.modal-close:hover {

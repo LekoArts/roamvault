@@ -92,7 +92,7 @@
 						{#each allDays as date (date)}
 							{@const dayActivityNames = dayMap.get(date) ?? []}
 							<div class='day-group'>
-								<h4 class='day-heading'>{date}</h4>
+								<p class='day-heading'>{date}</p>
 								{#if dayActivityNames.length === 0}
 									<p class='no-activities'>No activities for this day</p>
 								{:else}
@@ -375,7 +375,9 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		padding: var(--space-1);
+		width: 28px;
+		height: 28px;
+		padding: 0;
 		border: none;
 		background: none;
 		color: var(--color-text-muted);
@@ -416,7 +418,9 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		padding: var(--space-3);
+		width: 32px;
+		height: 32px;
+		padding: 0;
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-sm);
 		background: var(--color-bg-accent);

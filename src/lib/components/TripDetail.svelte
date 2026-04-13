@@ -84,7 +84,7 @@
 
 <div class='trip-detail'>
 	<header class='detail-header'>
-		<button class='btn-back' onclick={() => uiStore.navigate('travel-list')}>
+		<button type='button' class='btn-back' onclick={() => uiStore.navigate('travel-list')}>
 			<ArrowLeft size={18} aria-hidden='true' />
 			All Trips
 		</button>
@@ -92,7 +92,7 @@
 
 	<section class='hero-card'>
 		{#if banner}
-			<div class='trip-banner' style:background-image='url({banner})'></div>
+			<div class='trip-banner' style:background-image='url({banner})' role='img' aria-label='Banner image for {trip.name}'></div>
 		{/if}
 
 		<div class='trip-content'>
@@ -104,7 +104,7 @@
 				<div class='trip-title-actions'>
 					<span class='type-label {typeClass}'>{typeLabel}</span>
 					{#if trip.classificationMetadata}
-						<button class='btn-metadata' onclick={() => uiStore.toggleTripMetadata()}>
+						<button type='button' class='btn-metadata' onclick={() => uiStore.toggleTripMetadata()}>
 							{uiStore.showTripMetadata ? 'Hide metadata' : 'Show metadata'}
 						</button>
 					{/if}
@@ -156,7 +156,7 @@
 						<p class='section-kicker'>Structure</p>
 						<h2>Planning</h2>
 					</div>
-					<button class='btn-add' onclick={() => uiStore.openCreateItemModal('Planning')}>
+					<button type='button' class='btn-add' onclick={() => uiStore.openCreateItemModal('Planning')}>
 						<Plus size={14} aria-hidden='true' />
 						New Day Plan
 					</button>
@@ -175,7 +175,7 @@
 						<p class='section-kicker'>Places</p>
 						<h2>Activities</h2>
 					</div>
-					<button class='btn-add' onclick={() => uiStore.openCreateItemModal('Activity')}>
+					<button type='button' class='btn-add' onclick={() => uiStore.openCreateItemModal('Activity')}>
 						<Plus size={14} aria-hidden='true' />
 						New Activity
 					</button>
@@ -191,7 +191,7 @@
 						<p class='section-kicker'>Route</p>
 						<h2>Stops</h2>
 					</div>
-					<button class='btn-add' onclick={() => uiStore.openCreateItemModal('Stop')}>
+					<button type='button' class='btn-add' onclick={() => uiStore.openCreateItemModal('Stop')}>
 						<Plus size={14} aria-hidden='true' />
 						New Stop
 					</button>
@@ -218,7 +218,6 @@
 		border: 1px solid var(--color-border);
 		background: var(--color-bg-card);
 		box-shadow: var(--shadow-sm);
-		backdrop-filter: blur(18px);
 	}
 
 	.hero-card {

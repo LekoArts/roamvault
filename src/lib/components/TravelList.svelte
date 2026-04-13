@@ -33,15 +33,15 @@
 				<p class='eyebrow'>Vault overview</p>
 				<h1>{vaultStore.name}</h1>
 			</div>
-			<div class='hero-actions'>
-				<button class='btn-primary' onclick={() => uiStore.openCreateTripModal()}>
+			<nav class='hero-actions' aria-label='Trip actions'>
+				<button type='button' class='btn-primary' onclick={() => uiStore.openCreateTripModal()}>
 					<Plus size={16} aria-hidden='true' />
 					New Trip
 				</button>
-				<button class='btn-secondary' onclick={handleChangeVault}>
+				<button type='button' class='btn-secondary' onclick={handleChangeVault}>
 					Change Vault
 				</button>
-			</div>
+			</nav>
 		</div>
 
 		<div class='hero-bottom'>
@@ -65,21 +65,21 @@
 	</header>
 
 	{#if vaultStore.loading}
-		<div class='state-panel'>
-			<div class='spinner'></div>
+		<div class='state-panel' role='status' aria-live='polite'>
+			<div class='spinner' aria-hidden='true'></div>
 			<p>Loading travel data</p>
 		</div>
 	{:else if vaultStore.error}
 		<div class='state-panel error-message'>
 			<p>{vaultStore.error}</p>
-			<button class='btn-secondary' onclick={() => vaultStore.reload()}>Retry</button>
+			<button type='button' class='btn-secondary' onclick={() => vaultStore.reload()}>Retry</button>
 		</div>
 	{:else if sortedYears.length === 0}
 		<div class='state-panel empty-state'>
 			<Folder size={48} strokeWidth={1.5} opacity={0.45} aria-hidden='true' />
 			<h2>No travel plans found</h2>
 			<p>Create your first trip or make sure your vault has a <code>Travel</code> folder.</p>
-			<button class='btn-primary btn-large' onclick={() => uiStore.openCreateTripModal()}>
+			<button type='button' class='btn-primary btn-large' onclick={() => uiStore.openCreateTripModal()}>
 				<Plus size={20} aria-hidden='true' />
 				Create First Trip
 			</button>
@@ -129,7 +129,6 @@
 		border: 1px solid var(--color-border);
 		background: var(--color-bg-card);
 		box-shadow: var(--shadow-sm);
-		backdrop-filter: blur(18px);
 	}
 
 	.hero-top {
@@ -328,14 +327,6 @@
 		width: 34px;
 		height: 34px;
 		margin: 0 auto var(--space-6);
-		border: 3px solid var(--color-border);
-		border-top-color: var(--color-primary);
-		border-radius: 50%;
-		animation: spin 0.8s linear infinite;
-	}
-
-	@keyframes spin {
-		to { transform: rotate(360deg); }
 	}
 
 	.error-message {
@@ -390,5 +381,10 @@
 
 	footer a:hover {
 		color: var(--color-text);
+	}
+
+	footer a:focus-visible {
+		text-decoration: underline;
+		text-underline-offset: 2px;
 	}
 </style>

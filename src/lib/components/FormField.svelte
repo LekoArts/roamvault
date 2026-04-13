@@ -178,8 +178,13 @@
 	}
 
 	input[type='checkbox'] {
-		width: 18px;
-		height: 18px;
+		width: 22px;
+		height: 22px;
 		accent-color: var(--color-primary);
+		cursor: pointer;
+	}
+
+	.checkbox-label {
+		min-height: 44px;
 	}
 </style>

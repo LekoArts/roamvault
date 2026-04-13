@@ -73,8 +73,8 @@
 					Open Demo Vault
 				</button>
 			{:else if phase === 'opening' || vaultStore.loading}
-				<div class='loading-card'>
-					<div class='spinner'></div>
+				<div class='loading-card' role='status' aria-live='polite'>
+					<div class='spinner' aria-hidden='true'></div>
 					<p>Opening vault</p>
 				</div>
 			{:else}
@@ -231,14 +231,6 @@
 	.spinner {
 		width: 34px;
 		height: 34px;
-		border: 3px solid var(--color-border);
-		border-top-color: var(--color-primary);
-		border-radius: 50%;
-		animation: spin 0.8s linear infinite;
-	}
-
-	@keyframes spin {
-		to { transform: rotate(360deg); }
 	}
 
 	.error {

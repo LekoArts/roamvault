@@ -49,10 +49,10 @@
 		{#if groupedByLocation.length > 0}
 			{#each groupedByLocation as [location, locationItems]}
 				<div class='location-group'>
-					<h4 class='location-heading'>
+					<p class='location-heading'>
 						<MapPin size={14} aria-hidden='true' />
 						{location}
-					</h4>
+					</p>
 					<ul>
 						{#each locationItems as item (item.path)}
 							<li class='item'>

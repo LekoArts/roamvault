@@ -39,7 +39,7 @@
 
 <button class='trip-card' onclick={() => uiStore.selectTrip(trip)}>
 	{#if banner}
-		<div class='trip-banner' style:background-image='url({banner})'></div>
+		<div class='trip-banner' style:background-image='url({banner})' role='img' aria-label='Banner for {trip.name}'></div>
 	{/if}
 	<div class='trip-info'>
 		<div class='trip-header'>
