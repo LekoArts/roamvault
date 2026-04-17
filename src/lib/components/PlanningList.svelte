@@ -183,9 +183,7 @@
 						{/each}
 						{#if onadd && meta.available.length > 0}
 							<div class='add-activity-row'>
-								<p class='add-activity-title'>Assign activity</p>
 								<label class='control-label'>
-									<span class='control-text'>Day</span>
 									<select
 										class='add-activity-select day-select'
 										aria-label='Select day'
@@ -198,7 +196,6 @@
 									</select>
 								</label>
 								<label class='control-label control-label-grow'>
-									<span class='control-text'>Activity</span>
 									<select
 										class='add-activity-select'
 										aria-label='Select activity to add'
@@ -258,9 +255,7 @@
 						{/if}
 						{#if onadd && meta.available.length > 0}
 							<div class='add-activity-row'>
-								<p class='add-activity-title'>Assign activity</p>
 								<label class='control-label control-label-grow'>
-									<span class='control-text'>Activity</span>
 									<select
 										class='add-activity-select'
 										aria-label='Select activity to add'
@@ -273,7 +268,7 @@
 									</select>
 								</label>
 								<button
-									class='btn-add-activity btn-add-activity-wide'
+									class='btn-add-activity'
 									aria-label={getAddLabel(item.name, getSelectedActivity(item))}
 									onclick={() => {
 										const activityName = getSelectedActivity(item)
@@ -476,24 +471,12 @@
 	}
 
 	.add-activity-row {
-		display: grid;
-		grid-template-columns: minmax(0, 1fr) repeat(2, auto);
-		align-items: end;
-		gap: var(--space-4) var(--space-4);
-		margin-top: var(--space-6);
+		display: flex;
+		justify-content: flex-end;
+		gap: var(--space-4);
+		margin-top: var(--space-20);
 		padding-top: var(--space-5);
 		border-top: 1px solid color-mix(in srgb, var(--color-border) 64%, transparent);
-	}
-
-	.add-activity-title {
-		margin: 0;
-		font-size: 0.82rem;
-		font-weight: 600;
-		letter-spacing: 0.04em;
-		text-transform: uppercase;
-		color: var(--color-text-muted);
-		line-height: 1.4;
-		align-self: center;
 	}
 
 	.control-label {
@@ -505,12 +488,6 @@
 
 	.control-label-grow {
 		justify-content: flex-end;
-	}
-
-	.control-text {
-		font-size: 0.78rem;
-		font-weight: 600;
-		color: var(--color-text-muted);
 	}
 
 	.add-activity-select {
@@ -533,9 +510,7 @@
 		align-items: center;
 		justify-content: center;
 		gap: var(--space-3);
-		min-width: 44px;
-		height: 44px;
-		padding: 0 var(--space-5);
+		padding: var(--space-2) var(--space-8);
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-pill);
 		background: color-mix(in srgb, var(--color-bg-accent) 68%, var(--color-bg-card-strong));
@@ -544,10 +519,6 @@
 		font-size: 0.85rem;
 		font-weight: 600;
 		transition: background-color 0.15s ease, border-color 0.15s ease;
-	}
-
-	.btn-add-activity-wide {
-		min-width: 6.75rem;
 	}
 
 	.btn-add-activity:hover {
@@ -594,10 +565,6 @@
 
 		.add-activity-row {
 			grid-template-columns: 1fr;
-		}
-
-		.add-activity-title {
-			width: 100%;
 		}
 
 		.add-activity-select,

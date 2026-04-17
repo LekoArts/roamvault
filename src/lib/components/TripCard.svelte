@@ -1,6 +1,5 @@
 <script lang='ts'>
 	import type { TripData } from '../models/types'
-	import { ArrowRight } from '@lucide/svelte'
 	import { uiStore } from '../stores/ui.svelte'
 	import { formatDateRange } from '../utils/format'
 
@@ -54,10 +53,6 @@
 			{#if itemCount > 0}
 				<p class='trip-items'>{itemCount} item{itemCount !== 1 ? 's' : ''}</p>
 			{/if}
-		</div>
-		<div class='trip-footer'>
-			<span class='trip-open-label'>View details</span>
-			<ArrowRight size={16} aria-hidden='true' />
 		</div>
 	</div>
 </button>
@@ -170,20 +165,6 @@
 		margin: 0;
 		font-size: 0.85rem;
 		color: var(--color-text-muted);
-	}
-
-	.trip-footer {
-		display: inline-flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: var(--space-3);
-		margin-top: auto;
-		padding-top: var(--space-4);
-		border-top: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
-		font-size: 0.88rem;
-		font-weight: 600;
-		color: var(--color-text-muted);
-		transition: color 160ms ease, transform 160ms ease;
 	}
 
 	.trip-open-label {

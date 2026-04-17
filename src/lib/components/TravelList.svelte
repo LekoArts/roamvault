@@ -128,7 +128,6 @@
 	.hero {
 		margin-bottom: var(--space-20);
 		padding: clamp(1.75rem, 4vw, 2.5rem) 0;
-		border-bottom: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
 		display: grid;
 		gap: var(--space-12);
 	}

@@ -7,6 +7,7 @@
 	let phase = $state<'checking' | 'opening' | 'ready'>('checking')
 	const unsupported = !('showDirectoryPicker' in window)
 	const demoEnabled = __DEMO__
+	const devMode = __DEV__
 
 	async function handleOpen() {
 		phase = 'opening'
@@ -51,14 +52,14 @@
 	<div class='vault-picker'>
 		<div class='vault-picker-inner'>
 			<div class='intro'>
-				<div class='logo-mark'>
-					<FolderPlus size={40} strokeWidth={1.5} aria-hidden='true' />
+				<div class='logo'>
+					<div class='logo-mark'>
+						<FolderPlus size={35} strokeWidth={1.5} aria-hidden='true' />
+					</div>
+					<h1>RoamVault</h1>
 				</div>
 
-				<div class='intro-copy'>
-					<h1>RoamVault</h1>
-					<p class='tagline'>Open your Obsidian travel vault in the browser and keep every change on your device.</p>
-				</div>
+				<p class='tagline'>Open your Obsidian travel vault in the browser and keep every change on your device.</p>
 			</div>
 
 			{#if unsupported && !demoEnabled}
@@ -87,7 +88,7 @@
 				</button>
 
 				<p class='supporting-copy'>
-					{#if demoEnabled}
+					{#if demoEnabled || devMode}
 						Need a preview first? <button class='demo-link' onclick={handleOpenDemo}>Open the demo vault</button> with sample trips.
 					{:else}
 						Reconnect to your travel vault or choose a new one to start planning.
@@ -126,25 +127,26 @@
 	}
 
 	.intro {
-		display: grid;
-		grid-template-columns: auto minmax(0, 1fr);
-		align-items: start;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 		gap: var(--space-10);
 	}
 
-	.intro-copy {
-		display: grid;
-		gap: var(--space-6);
-		max-width: 32rem;
+	.logo {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		gap: var(--space-10);
 	}
 
 	.logo-mark {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 80px;
-		height: 80px;
-		border-radius: 28px;
+		width: 60px;
+		height: 60px;
+		border-radius: 20px;
 		background: var(--color-primary-soft);
 		border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
 		color: var(--color-primary);
@@ -164,11 +166,14 @@
 		font-size: 1.05rem;
 		line-height: 1.65;
 		max-width: 30rem;
+		text-align: center;
 	}
 
 	.open-vault-btn {
 		display: inline-flex;
+		width: fit-content;
 		align-items: center;
+		justify-self: center;
 		justify-content: center;
 		gap: var(--space-4);
 		min-height: 3.25rem;
@@ -186,11 +191,6 @@
 	.open-vault-btn:hover {
 		background: var(--color-primary-strong);
 		transform: translateY(-1px);
-	}
-
-	.open-vault-btn:hover :global(.button-icon),
-	.open-vault-btn:focus-visible :global(.button-icon) {
-		transform: translateX(2px);
 	}
 
 	.open-vault-btn:active {
@@ -217,7 +217,7 @@
 		font-size: 0.95rem;
 		line-height: 1.6;
 		color: var(--color-text-muted);
-		max-width: 38ch;
+		max-width: 70ch;
 	}
 
 	.message-card,
@@ -270,8 +270,8 @@
 		}
 
 		.logo-mark {
-			width: 72px;
-			height: 72px;
+			width: 50px;
+			height: 50px;
 		}
 
 		.open-vault-btn {

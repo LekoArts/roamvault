@@ -5,6 +5,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
 	define: {
 		__DEMO__: false,
+		__DEV__: false,
 	},
 	plugins: [svelte()],
 	test: {

@@ -140,6 +140,7 @@
 		padding: 0;
 		display: grid;
 		gap: var(--space-3);
+		grid-template-columns: repeat(3, 1fr)
 	}
 
 	.item {
@@ -154,7 +155,7 @@
 	}
 
 	.location-group .item {
-		background: color-mix(in srgb, var(--color-bg-accent) 48%, var(--color-bg-card-strong));
+		background: color-mix(in srgb, var(--color-bg-accent) 75%, var(--color-bg-card-strong));
 	}
 
 	.item-list > ul .item {
@@ -199,6 +200,10 @@
 	}
 
 	@media (max-width: 700px) {
+		ul {
+			grid-template-columns: 1fr;
+		}
+
 		.item {
 			align-items: flex-start;
 			flex-direction: column;

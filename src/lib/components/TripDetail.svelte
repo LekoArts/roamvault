@@ -101,7 +101,6 @@
 			<div class='trip-title-row'>
 				<div class='trip-heading'>
 					<h1>{trip.name}</h1>
-					<p class='trip-subtitle'>{typeLabel} in your vault</p>
 				</div>
 				<div class='trip-title-actions'>
 					<span class='type-label {typeClass}'>{typeLabel}</span>

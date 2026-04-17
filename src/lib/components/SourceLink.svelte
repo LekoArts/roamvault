@@ -12,7 +12,7 @@
 		display: inline-flex;
 		align-items: center;
 		gap: var(--space-2);
-		padding: var(--space-2) var(--space-3);
+		padding: var(--space-2) var(--space-6);
 		border-radius: var(--radius-pill);
 		font-size: 0.95rem;
 		color: var(--color-text-muted);
