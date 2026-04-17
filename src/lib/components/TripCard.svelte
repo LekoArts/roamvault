@@ -1,5 +1,6 @@
 <script lang='ts'>
 	import type { TripData } from '../models/types'
+	import { ArrowRight } from '@lucide/svelte'
 	import { uiStore } from '../stores/ui.svelte'
 	import { formatDateRange } from '../utils/format'
 
@@ -37,21 +38,27 @@
 	})
 </script>
 
-<button class='trip-card' onclick={() => uiStore.selectTrip(trip)}>
+<button class='trip-card' onclick={() => uiStore.selectTrip(trip)} aria-label='Open {trip.name}'>
 	{#if banner}
 		<div class='trip-banner' style:background-image='url({banner})' role='img' aria-label='Banner for {trip.name}'></div>
 	{/if}
 	<div class='trip-info'>
-		<div class='trip-header'>
-			<span class='badge {typeClass}'>{typeLabel}</span>
-			{#if dateRange}
-				<p class='trip-dates'>{dateRange}</p>
+		<div class='trip-copy'>
+			<div class='trip-header'>
+				<span class='badge {typeClass}'>{typeLabel}</span>
+				{#if dateRange}
+					<p class='trip-dates'>{dateRange}</p>
+				{/if}
+			</div>
+			<h3>{trip.name}</h3>
+			{#if itemCount > 0}
+				<p class='trip-items'>{itemCount} item{itemCount !== 1 ? 's' : ''}</p>
 			{/if}
 		</div>
-		<h3>{trip.name}</h3>
-		{#if itemCount > 0}
-			<p class='trip-items'>{itemCount} item{itemCount !== 1 ? 's' : ''}</p>
-		{/if}
+		<div class='trip-footer'>
+			<span class='trip-open-label'>View details</span>
+			<ArrowRight size={16} aria-hidden='true' />
+		</div>
 	</div>
 </button>
 
@@ -60,8 +67,8 @@
 		display: flex;
 		flex-direction: column;
 		min-height: 15.5rem;
-		background: var(--color-bg-card-strong);
-		border: 1px solid var(--color-border);
+		background: color-mix(in srgb, var(--color-bg-card-strong) 92%, transparent);
+		border: 1px solid color-mix(in srgb, var(--color-border) 82%, transparent);
 		border-radius: calc(var(--radius-lg) - 4px);
 		overflow: hidden;
 		cursor: pointer;
@@ -71,10 +78,15 @@
 		font: inherit;
 		color: inherit;
 		box-shadow: var(--shadow-sm);
+		transition:
+			border-color 160ms ease,
+			box-shadow 160ms ease,
+			transform 160ms ease,
+			background-color 160ms ease;
 	}
 
 	.trip-card:hover {
-		border-color: var(--color-primary);
+		border-color: color-mix(in srgb, var(--color-primary) 65%, var(--color-border));
 		transform: translateY(-2px);
 		box-shadow: var(--shadow-md);
 	}
@@ -93,6 +105,8 @@
 		height: 144px;
 		background-size: cover;
 		background-position: center;
+		transition: transform var(--duration-slow) var(--ease-out-strong);
+		transform-origin: center;
 	}
 
 	.trip-info {
@@ -100,8 +114,14 @@
 		flex: 1;
 		flex-direction: column;
 		justify-content: space-between;
-		gap: var(--space-6);
+		gap: var(--space-8);
 		padding: var(--space-8);
+	}
+
+	.trip-copy {
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-4);
 	}
 
 	.trip-header {
@@ -115,7 +135,9 @@
 	h3 {
 		margin: 0;
 		font-size: 1.4rem;
-		line-height: 1.05;
+		line-height: 1.1;
+		text-wrap: balance;
+		transition: color 160ms ease;
 	}
 
 	.badge {
@@ -148,5 +170,40 @@
 		margin: 0;
 		font-size: 0.85rem;
 		color: var(--color-text-muted);
+	}
+
+	.trip-footer {
+		display: inline-flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-3);
+		margin-top: auto;
+		padding-top: var(--space-4);
+		border-top: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+		font-size: 0.88rem;
+		font-weight: 600;
+		color: var(--color-text-muted);
+		transition: color 160ms ease, transform 160ms ease;
+	}
+
+	.trip-open-label {
+		position: relative;
+	}
+
+	.trip-card:hover h3,
+	.trip-card:focus-visible h3,
+	.trip-card:hover .trip-footer,
+	.trip-card:focus-visible .trip-footer {
+		color: var(--color-primary);
+	}
+
+	.trip-card:hover .trip-banner,
+	.trip-card:focus-visible .trip-banner {
+		transform: scale(1.03);
+	}
+
+	.trip-card:hover .trip-footer :global(svg),
+	.trip-card:focus-visible .trip-footer :global(svg) {
+		transform: translateX(2px);
 	}
 </style>

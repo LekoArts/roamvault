@@ -17,6 +17,16 @@
 		onadd?: (planningItem: SubItem, activityName: string, date?: string) => void
 	} = $props()
 
+	type ResolvedActivity = { name: string, activity: SubItem | null }
+	type PlanningMeta = {
+		item: SubItem
+		multiDay: boolean
+		dayMap: Map<string, string[]>
+		allDays: string[]
+		linked: ResolvedActivity[]
+		available: SubItem[]
+	}
+
 	const sorted = $derived(
 		planningItems.toSorted((a, b) => {
 			const aDate = String(a.frontmatter.startDate ?? '')
@@ -25,43 +35,91 @@
 		}),
 	)
 
-	function resolveActivities(item: SubItem): { name: string, activity: SubItem | null }[] {
-		const raw = item.frontmatter.Activities
-		if (!raw || !Array.isArray(raw) || raw.length === 0)
-			return []
+	const activityMap = $derived.by(() => new Map(activities.map(activity => [activity.name, activity])))
 
-		return (raw as string[]).map((link) => {
-			const name = stripWikiLink(String(link))
-			const found = activities.find(a => a.name === name) ?? null
-			return { name, activity: found }
-		})
-	}
+	const planningMetaByPath = $derived.by(() => {
+		const meta = new Map<string, PlanningMeta>()
 
-	function isMultiDay(item: SubItem): boolean {
-		return !!item.frontmatter.startDate
-			&& !!item.frontmatter.endDate
-			&& item.frontmatter.startDate !== item.frontmatter.endDate
-	}
+		for (const item of sorted) {
+			const raw = item.frontmatter.Activities
+			const linkedNames = Array.isArray(raw)
+				? raw.map(link => stripWikiLink(String(link)))
+				: []
+			const linked = linkedNames.map((name) => {
+				const activity = activityMap.get(name) ?? null
+				return { name, activity }
+			})
+			const linkedNameSet = new Set(linkedNames)
+			const available = activities
+				.filter(activity => !linkedNameSet.has(activity.name))
+				.toSorted((a, b) => a.name.localeCompare(b.name))
+			const multiDay = !!item.frontmatter.startDate
+				&& !!item.frontmatter.endDate
+				&& item.frontmatter.startDate !== item.frontmatter.endDate
+			const dayMap = parseDayActivities(item.content ?? '')
+			const allDays = multiDay
+				? generateDateRange(item.frontmatter.startDate, item.frontmatter.endDate)
+				: []
 
-	function getDayActivities(item: SubItem): Map<string, string[]> {
-		return parseDayActivities(item.content ?? '')
+			meta.set(item.path, {
+				item,
+				multiDay,
+				dayMap,
+				allDays,
+				linked,
+				available,
+			})
+		}
+
+		return meta
+	})
+
+	const selectedActivityByPath = $state<Record<string, string>>({})
+	const selectedDayByPath = $state<Record<string, string>>({})
+
+	function getMeta(item: SubItem): PlanningMeta {
+		return planningMetaByPath.get(item.path) ?? {
+			item,
+			multiDay: false,
+			dayMap: new Map(),
+			allDays: [],
+			linked: [],
+			available: [],
+		}
 	}
 
 	function resolveActivity(name: string): SubItem | null {
-		return activities.find(a => a.name === name) ?? null
+		return activityMap.get(name) ?? null
 	}
 
-	function getAvailableActivities(item: SubItem): SubItem[] {
-		const raw = item.frontmatter.Activities
-		const linkedNames = new Set<string>()
-		if (raw && Array.isArray(raw)) {
-			for (const link of raw as string[]) {
-				linkedNames.add(stripWikiLink(String(link)))
-			}
-		}
-		return activities
-			.filter(a => !linkedNames.has(a.name))
-			.toSorted((a, b) => a.name.localeCompare(b.name))
+	function getRemoveLabel(activityName: string, itemName: string, date?: string): string {
+		return date
+			? `Remove ${activityName} from ${itemName} on ${date}`
+			: `Remove ${activityName} from ${itemName}`
+	}
+
+	function getAddLabel(itemName: string, activityName: string, date?: string): string {
+		return date
+			? `Add ${activityName} to ${itemName} on ${date}`
+			: `Add ${activityName} to ${itemName}`
+	}
+
+	function getSelectedActivity(item: SubItem): string {
+		const available = getMeta(item).available
+		return selectedActivityByPath[item.path] ?? available[0]?.name ?? ''
+	}
+
+	function setSelectedActivity(item: SubItem, value: string) {
+		selectedActivityByPath[item.path] = value
+	}
+
+	function getSelectedDay(item: SubItem): string {
+		const allDays = getMeta(item).allDays
+		return selectedDayByPath[item.path] ?? allDays[0] ?? ''
+	}
+
+	function setSelectedDay(item: SubItem, value: string) {
+		selectedDayByPath[item.path] = value
 	}
 </script>
 
@@ -70,8 +128,7 @@
 		<p class='empty'>No planning yet</p>
 	{:else}
 		{#each sorted as item (item.path)}
-			{@const multiDay = isMultiDay(item)}
-			{@const available = getAvailableActivities(item)}
+			{@const meta = getMeta(item)}
 			<details class='planning-item'>
 				<summary class='planning-summary'>
 					<span class='chevron-icon'><ChevronRight size={14} aria-hidden='true' /></span>
@@ -86,13 +143,11 @@
 					{/if}
 				</summary>
 				<div class='planning-content'>
-					{#if multiDay}
-						{@const dayMap = getDayActivities(item)}
-						{@const allDays = generateDateRange(item.frontmatter.startDate, item.frontmatter.endDate)}
-						{#each allDays as date (date)}
-							{@const dayActivityNames = dayMap.get(date) ?? []}
-							<div class='day-group'>
-								<p class='day-heading'>{date}</p>
+					{#if meta.multiDay}
+						{#each meta.allDays as date (date)}
+							{@const dayActivityNames = meta.dayMap.get(date) ?? []}
+							<section class='day-group'>
+								<h3 class='day-heading'>{date}</h3>
 								{#if dayActivityNames.length === 0}
 									<p class='no-activities'>No activities for this day</p>
 								{:else}
@@ -113,10 +168,10 @@
 													{#if onremove}
 														<button
 															class='btn-remove'
-															aria-label='Remove {actName} from {date}'
+															aria-label={getRemoveLabel(actName, item.name, date)}
 															onclick={() => onremove(item, actName, date)}
 														>
-															<X size={14} />
+															<X class='button-icon' size={14} />
 														</button>
 													{/if}
 												</span>
@@ -124,42 +179,58 @@
 										{/each}
 									</ul>
 								{/if}
-							</div>
+							</section>
 						{/each}
-						{#if onadd && available.length > 0}
+						{#if onadd && meta.available.length > 0}
 							<div class='add-activity-row'>
-								<select class='add-activity-select day-select' aria-label='Select day' data-planning-day={item.name}>
-									{#each allDays as date}
-										<option value={date}>{date}</option>
-									{/each}
-								</select>
-								<select class='add-activity-select' aria-label='Select activity to add' data-planning={item.name}>
-									{#each available as act}
-										<option value={act.name}>{act.name}</option>
-									{/each}
-								</select>
+								<p class='add-activity-title'>Assign activity</p>
+								<label class='control-label'>
+									<span class='control-text'>Day</span>
+									<select
+										class='add-activity-select day-select'
+										aria-label='Select day'
+										value={getSelectedDay(item)}
+										onchange={event => setSelectedDay(item, (event.currentTarget as HTMLSelectElement).value)}
+									>
+										{#each meta.allDays as date}
+											<option value={date}>{date}</option>
+										{/each}
+									</select>
+								</label>
+								<label class='control-label control-label-grow'>
+									<span class='control-text'>Activity</span>
+									<select
+										class='add-activity-select'
+										aria-label='Select activity to add'
+										value={getSelectedActivity(item)}
+										onchange={event => setSelectedActivity(item, (event.currentTarget as HTMLSelectElement).value)}
+									>
+										{#each meta.available as act}
+											<option value={act.name}>{act.name}</option>
+										{/each}
+									</select>
+								</label>
 								<button
 									class='btn-add-activity'
-									aria-label='Add activity'
-									onclick={(e) => {
-										const btn = e.currentTarget as HTMLElement
-										const actSelect = btn.previousElementSibling as HTMLSelectElement
-										const daySelect = actSelect.previousElementSibling as HTMLSelectElement
-										if (actSelect?.value && daySelect?.value)
-											onadd(item, actSelect.value, daySelect.value)
+									aria-label={getAddLabel(item.name, getSelectedActivity(item), getSelectedDay(item))}
+									onclick={() => {
+										const activityName = getSelectedActivity(item)
+										const date = getSelectedDay(item)
+										if (activityName && date)
+											onadd(item, activityName, date)
 									}}
 								>
-									<Plus size={14} />
+									<Plus class='button-icon' size={14} />
+									<span>Assign</span>
 								</button>
 							</div>
 						{/if}
 					{:else}
-						{@const linked = resolveActivities(item)}
-						{#if linked.length === 0}
+						{#if meta.linked.length === 0}
 							<p class='no-activities'>No activities planned</p>
 						{:else}
 							<ul class='activity-list'>
-								{#each linked as { name, activity }}
+								{#each meta.linked as { name, activity }}
 									<li class='activity-item'>
 										<span class='activity-name'>{name}</span>
 										<span class='activity-actions'>
@@ -174,10 +245,10 @@
 											{#if onremove}
 												<button
 													class='btn-remove'
-													aria-label='Remove {name}'
+													aria-label={getRemoveLabel(name, item.name)}
 													onclick={() => onremove(item, name)}
 												>
-													<X size={14} />
+													<X class='button-icon' size={14} />
 												</button>
 											{/if}
 										</span>
@@ -185,23 +256,33 @@
 								{/each}
 							</ul>
 						{/if}
-						{#if onadd && available.length > 0}
+						{#if onadd && meta.available.length > 0}
 							<div class='add-activity-row'>
-								<select class='add-activity-select' aria-label='Select activity to add' data-planning={item.name}>
-									{#each available as act}
-										<option value={act.name}>{act.name}</option>
-									{/each}
-								</select>
+								<p class='add-activity-title'>Assign activity</p>
+								<label class='control-label control-label-grow'>
+									<span class='control-text'>Activity</span>
+									<select
+										class='add-activity-select'
+										aria-label='Select activity to add'
+										value={getSelectedActivity(item)}
+										onchange={event => setSelectedActivity(item, (event.currentTarget as HTMLSelectElement).value)}
+									>
+										{#each meta.available as act}
+											<option value={act.name}>{act.name}</option>
+										{/each}
+									</select>
+								</label>
 								<button
-									class='btn-add-activity'
-									aria-label='Add activity'
-									onclick={(e) => {
-										const select = (e.currentTarget as HTMLElement).previousElementSibling as HTMLSelectElement
-										if (select?.value)
-											onadd(item, select.value)
+									class='btn-add-activity btn-add-activity-wide'
+									aria-label={getAddLabel(item.name, getSelectedActivity(item))}
+									onclick={() => {
+										const activityName = getSelectedActivity(item)
+										if (activityName)
+											onadd(item, activityName)
 									}}
 								>
-									<Plus size={14} />
+									<Plus class='button-icon' size={14} />
+									<span>Assign</span>
 								</button>
 							</div>
 						{/if}
@@ -225,14 +306,15 @@
 		margin: 0;
 		padding: var(--space-8);
 		text-align: center;
-		border: 1px dashed var(--color-border);
+		border: 1px solid color-mix(in srgb, var(--color-border) 60%, transparent);
 		border-radius: var(--radius-md);
+		background: color-mix(in srgb, var(--color-bg-accent) 55%, var(--color-bg-card-strong));
 	}
 
 	.planning-item {
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-sm);
-		background: var(--color-bg-accent);
+		background: var(--color-bg-card);
 		transition:
 			background-color 0.15s ease,
 			border-color 0.15s ease;
@@ -243,7 +325,7 @@
 	}
 
 	.planning-item[open] {
-		background: var(--color-bg-card);
+		border-color: color-mix(in srgb, var(--color-border-strong) 85%, transparent);
 	}
 
 	.planning-summary {
@@ -281,9 +363,7 @@
 	.planning-name {
 		font-weight: 500;
 		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+		overflow-wrap: anywhere;
 	}
 
 	.planning-date {
@@ -300,7 +380,7 @@
 	}
 
 	.day-group {
-		margin-bottom: var(--space-4);
+		margin-bottom: var(--space-8);
 	}
 
 	.day-group:last-child {
@@ -308,9 +388,10 @@
 	}
 
 	.day-heading {
-		font-size: 0.82rem;
+		font-family: var(--font-sans);
+		font-size: 0.9rem;
 		font-weight: 600;
-		color: var(--color-text-muted);
+		color: var(--color-text);
 		margin: 0 0 var(--space-3) 0;
 		padding-bottom: var(--space-2);
 		border-bottom: 1px solid var(--color-border);
@@ -333,12 +414,12 @@
 
 	.activity-item {
 		display: flex;
-		align-items: center;
+		align-items: flex-start;
 		justify-content: space-between;
 		gap: var(--space-4);
-		padding: var(--space-3) var(--space-5);
+		padding: var(--space-4) var(--space-5);
 		font-size: 0.88rem;
-		background: var(--color-bg-accent);
+		background: color-mix(in srgb, var(--color-bg-accent) 62%, var(--color-bg-card-strong));
 		border-radius: var(--radius-sm);
 	}
 
@@ -351,9 +432,7 @@
 
 	.activity-name {
 		min-width: 0;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+		overflow-wrap: anywhere;
 	}
 
 	.activity-location {
@@ -375,8 +454,8 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 28px;
-		height: 28px;
+		width: 44px;
+		height: 44px;
 		padding: 0;
 		border: none;
 		background: none;
@@ -391,16 +470,51 @@
 		background: var(--color-bg-hover);
 	}
 
+	.btn-remove:hover :global(.button-icon),
+	.btn-remove:focus-visible :global(.button-icon) {
+		transform: rotate(90deg) scale(0.94);
+	}
+
 	.add-activity-row {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) repeat(2, auto);
+		align-items: end;
+		gap: var(--space-4) var(--space-4);
+		margin-top: var(--space-6);
+		padding-top: var(--space-5);
+		border-top: 1px solid color-mix(in srgb, var(--color-border) 64%, transparent);
+	}
+
+	.add-activity-title {
+		margin: 0;
+		font-size: 0.82rem;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
+		color: var(--color-text-muted);
+		line-height: 1.4;
+		align-self: center;
+	}
+
+	.control-label {
 		display: flex;
-		align-items: center;
+		flex-direction: column;
+		gap: var(--space-2);
+		min-width: 0;
+	}
+
+	.control-label-grow {
 		justify-content: flex-end;
-		gap: var(--space-3);
-		margin-top: var(--space-4);
+	}
+
+	.control-text {
+		font-size: 0.78rem;
+		font-weight: 600;
+		color: var(--color-text-muted);
 	}
 
 	.add-activity-select {
-		max-width: 300px;
+		width: min(100%, 320px);
 		padding: var(--space-3) var(--space-4);
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-sm);
@@ -411,26 +525,86 @@
 	}
 
 	.day-select {
-		max-width: 140px;
+		width: min(100%, 140px);
 	}
 
 	.btn-add-activity {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 32px;
-		height: 32px;
-		padding: 0;
+		gap: var(--space-3);
+		min-width: 44px;
+		height: 44px;
+		padding: 0 var(--space-5);
 		border: 1px solid var(--color-border);
-		border-radius: var(--radius-sm);
-		background: var(--color-bg-accent);
+		border-radius: var(--radius-pill);
+		background: color-mix(in srgb, var(--color-bg-accent) 68%, var(--color-bg-card-strong));
 		color: var(--color-text);
 		cursor: pointer;
+		font-size: 0.85rem;
+		font-weight: 600;
 		transition: background-color 0.15s ease, border-color 0.15s ease;
+	}
+
+	.btn-add-activity-wide {
+		min-width: 6.75rem;
 	}
 
 	.btn-add-activity:hover {
 		background: var(--color-bg-hover);
 		border-color: var(--color-border-strong);
+	}
+
+	.btn-add-activity:hover :global(.button-icon),
+	.btn-add-activity:focus-visible :global(.button-icon) {
+		transform: translateX(2px);
+	}
+
+	@media (max-width: 700px) {
+		.planning-summary {
+			align-items: flex-start;
+			flex-wrap: wrap;
+		}
+
+		.planning-name {
+			flex: 1 1 100%;
+		}
+
+		.planning-date {
+			margin-left: calc(14px + var(--space-4));
+		}
+
+		.planning-content {
+			margin-left: 0;
+		}
+
+		.activity-item {
+			flex-direction: column;
+		}
+
+		.activity-actions {
+			width: 100%;
+			justify-content: space-between;
+			flex-wrap: wrap;
+		}
+
+		.activity-location {
+			white-space: normal;
+		}
+
+		.add-activity-row {
+			grid-template-columns: 1fr;
+		}
+
+		.add-activity-title {
+			width: 100%;
+		}
+
+		.add-activity-select,
+		.day-select,
+		.btn-add-activity {
+			width: 100%;
+			max-width: none;
+		}
 	}
 </style>

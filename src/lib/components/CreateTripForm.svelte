@@ -3,6 +3,7 @@
 	import { uiStore } from '../stores/ui.svelte'
 	import { vaultStore } from '../stores/vault.svelte'
 	import { getEditableFields, getTemplate } from '../templates/engine'
+	import { formatFieldLabel } from '../utils/format'
 	import FormField from './FormField.svelte'
 	import Modal from './Modal.svelte'
 
@@ -16,11 +17,26 @@
 		return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`
 	})()
 	let startDate = $state(todayStr)
+	let endDate = $state(todayStr)
 
 	const template = $derived(getTemplate(vaultStore.templates, tripType))
 	const fields = $derived(template ? getEditableFields(template, false) : [])
-
+	const tripTypeDescription = $derived.by(() => {
+		switch (tripType) {
+			case 'Travel_Simple': return 'One note for the whole trip.'
+			case 'Travel_Advanced': return 'Separate planning notes and activities inside a trip folder.'
+			case 'Travel_Roadtrip': return 'Stops arranged as part of a driving route.'
+		}
+	})
 	const formValues: Record<string, unknown> = {}
+	const yearError = $derived(/^\d{4}$/.test(year.trim()) ? '' : 'Use a four-digit year, for example 2026.')
+	const dateErrors = $derived.by(() => {
+		const errors: Record<string, string> = {}
+		if (startDate && endDate && endDate < startDate)
+			errors.endDate = 'End date must be the same as or later than the start date.'
+		return errors
+	})
+	const canSave = $derived(Boolean(tripName.trim()) && !yearError && Object.keys(dateErrors).length === 0)
 
 	function defaultFor(field: typeof fields[number]): string | string[] | boolean {
 		let val: string | string[] | boolean = ''
@@ -34,8 +50,18 @@
 		return val
 	}
 
+	function getFieldDescription(field: typeof fields[number]) {
+		if (field.type === 'array')
+			return 'Separate multiple values with commas.'
+		if (field.key === 'endDate')
+			return 'Choose the last day of the trip. It cannot be before the start date.'
+		if (field.key === 'startDate')
+			return 'Choose the first day of the trip.'
+		return ''
+	}
+
 	async function handleSave() {
-		if (!tripName.trim())
+		if (!canSave)
 			return
 
 		saving = true
@@ -70,6 +96,8 @@
 		e.preventDefault()
 		handleSave()
 	}}>
+		<p class='form-intro'>Choose the trip structure first, then fill in the note details RoamVault should create for you.</p>
+		<p class='form-note'>Required fields are marked with an asterisk.</p>
 		<div class='form-fields'>
 			<FormField
 				label='Trip Name'
@@ -77,16 +105,18 @@
 				initialValue=''
 				required
 				placeholder='e.g. Summer in Rome'
+				description='This becomes the main note or folder name in your Travel directory.'
 				onchange={(v) => { tripName = v as string }}
 			/>
 
 			<div class='form-field'>
 				<label for='trip-type'>Trip Type</label>
-				<select id='trip-type' name='trip-type' bind:value={tripType}>
+				<select id='trip-type' name='trip-type' bind:value={tripType} aria-describedby='trip-type-description'>
 					<option value='Travel_Simple'>Simple Trip</option>
 					<option value='Travel_Advanced'>Advanced Trip</option>
 					<option value='Travel_Roadtrip'>Roadtrip</option>
 				</select>
+				<p id='trip-type-description' class='field-description'>{tripTypeDescription}</p>
 			</div>
 
 			<FormField
@@ -94,21 +124,28 @@
 				type='text'
 				initialValue={year}
 				required
+				placeholder='e.g. 2026'
+				description='Use the year folder where this trip should live, for example 2026.'
+				error={yearError}
 				onchange={(v) => { year = v as string }}
 			/>
 
 			{#key tripType}
 				{#each fields as field (field.key)}
 					<FormField
-						label={field.key}
+						label={formatFieldLabel(field.key)}
 						type={field.type}
 						initialValue={defaultFor(field)}
 						placeholder={field.type === 'url' ? 'https://' : ''}
+						description={getFieldDescription(field)}
+						error={dateErrors[field.key] ?? ''}
 						min={field.key === 'endDate' ? startDate : ''}
 						onchange={(v) => {
 							formValues[field.key] = v
 							if (field.key === 'startDate')
 								startDate = v as string
+							if (field.key === 'endDate')
+								endDate = v as string
 						}}
 					/>
 				{/each}
@@ -121,8 +158,8 @@
 
 		<div class='form-actions'>
 			<button type='button' class='btn-cancel' onclick={() => uiStore.closeModal()}>Cancel</button>
-			<button type='submit' class='btn-save' disabled={saving || !tripName.trim()}>
-				{saving ? 'Saving' : 'Save'}
+			<button type='submit' class='btn-save' disabled={saving || !canSave}>
+				{saving ? 'Creating trip…' : 'Create Trip'}
 			</button>
 		</div>
 	</form>
@@ -133,6 +170,18 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-10);
+	}
+
+	.form-intro {
+		margin: 0;
+		color: var(--color-text-muted);
+		font-size: 0.95rem;
+	}
+
+	.form-note {
+		margin: calc(var(--space-4) * -1) 0 0;
+		font-size: 0.85rem;
+		color: var(--color-text-muted);
 	}
 
 	.form-fields {
@@ -155,28 +204,26 @@
 		color: var(--color-text-muted);
 	}
 
+	.field-description {
+		margin: 0;
+		font-size: 0.85rem;
+		line-height: 1.45;
+		color: var(--color-text-muted);
+	}
+
 	select {
 		min-height: 3rem;
 		padding: 0 var(--space-6);
-		padding-right: var(--space-16);
+		padding-right: var(--space-12);
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-md);
-		background-color: var(--color-bg-input);
+		background: var(--color-bg-input);
 		color: var(--color-text);
 		font-size: 0.95rem;
 		font-family: inherit;
 		outline: none;
 		cursor: pointer;
-		appearance: none;
-		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23756454' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-		background-repeat: no-repeat;
-		background-position: right 1rem center;
-	}
-
-	@media (prefers-color-scheme: dark) {
-		select {
-			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23c0b09e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-		}
+		appearance: auto;
 	}
 
 	select:focus-visible {

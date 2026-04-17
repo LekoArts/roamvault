@@ -12,12 +12,21 @@
 		display: inline-flex;
 		align-items: center;
 		gap: var(--space-2);
-		font-size: 1rem;
+		padding: var(--space-2) var(--space-3);
+		border-radius: var(--radius-pill);
+		font-size: 0.95rem;
 		color: var(--color-text-muted);
 		text-decoration: none;
 	}
 
-  .source-link:hover {
+	.source-link:hover {
 		color: var(--color-text);
+		background: var(--color-bg-hover);
+	}
+
+	.source-link:focus-visible {
+		color: var(--color-text);
+		background: var(--color-bg-hover);
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 22%, transparent);
 	}
 </style>

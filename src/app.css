@@ -15,6 +15,7 @@
 	--color-primary-strong: #5f3f23;
 	--color-primary-soft: rgba(122, 84, 51, 0.12);
 	--color-primary-contrast: #ffffff;
+	--color-selection-text: #ffffff;
 	--color-danger: #b44a3f;
 	--color-success: #4d7a5a;
 	--color-warning: #a26b1f;
@@ -29,9 +30,9 @@
 	--color-badge-roadtrip: #55704d;
 
 	/* Shadows */
-	--shadow-sm: 0 10px 30px rgba(58, 42, 26, 0.06);
-	--shadow-md: 0 20px 60px rgba(58, 42, 26, 0.1);
-	--shadow-lg: 0 28px 90px rgba(58, 42, 26, 0.16);
+	--shadow-sm: 0 6px 18px rgba(58, 42, 26, 0.05);
+	--shadow-md: 0 14px 36px rgba(58, 42, 26, 0.1);
+	--shadow-lg: 0 24px 64px rgba(58, 42, 26, 0.16);
 
 	/* Radii */
 	--radius-sm: 10px;
@@ -58,10 +59,21 @@
 	/* Layout */
 	--max-width: 1120px;
 
+	/* Motion */
+	--ease-out-strong: cubic-bezier(0.16, 1, 0.3, 1);
+	--ease-out-soft: cubic-bezier(0.25, 1, 0.5, 1);
+	--duration-fast: 140ms;
+	--duration-base: 240ms;
+	--duration-slow: 420ms;
+
 	/* Typography */
-	--font-sans: 'Inter', 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
-	--font-serif: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
-	--font-mono: 'SFMono-Regular', Menlo, Consolas, Monaco, monospace;
+	--font-sans:
+		-apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, Adwaita Sans, Cantarell, Ubuntu,
+		roboto, noto, helvetica, arial, sans-serif;
+	--font-serif:
+		Iowan Old Style, Apple Garamond, Baskerville, Times New Roman, Droid Serif, Times, Source Serif Pro, serif,
+		Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;
+	--font-mono: Menlo, Consolas, Monaco, Adwaita Mono, Liberation Mono, Lucida Console, monospace;
 
 	font-family: var(--font-sans);
 	line-height: 1.5;
@@ -93,6 +105,7 @@
 		--color-primary-strong: #e3c3a2;
 		--color-primary-soft: rgba(214, 177, 138, 0.16);
 		--color-primary-contrast: #1a1612;
+		--color-selection-text: #1a1612;
 		--color-danger: #ef8f83;
 		--color-success: #8cb497;
 		--color-warning: #d9a55a;
@@ -105,9 +118,9 @@
 		--color-badge-roadtrip-bg: #2b3427;
 		--color-badge-roadtrip: #b6cfaf;
 
-		--shadow-sm: 0 12px 30px rgba(0, 0, 0, 0.24);
-		--shadow-md: 0 24px 70px rgba(0, 0, 0, 0.32);
-		--shadow-lg: 0 36px 100px rgba(0, 0, 0, 0.4);
+		--shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.22);
+		--shadow-md: 0 18px 44px rgba(0, 0, 0, 0.3);
+		--shadow-lg: 0 30px 80px rgba(0, 0, 0, 0.38);
 
 		color-scheme: dark;
 	}
@@ -126,30 +139,19 @@ html {
 body {
 	margin: 0;
 	min-height: 100vh;
-	background:
-		radial-gradient(circle at top, rgba(255, 255, 255, 0.45), transparent 32%),
-		linear-gradient(180deg, var(--color-bg-elevated) 0%, var(--color-bg) 22%, var(--color-bg) 100%);
+	background: var(--color-bg);
 	color: var(--color-text);
+	line-height: 1.6;
 	transition:
 		background-color 0.2s,
 		color 0.2s;
 }
 
-body::before {
-	content: '';
-	position: fixed;
-	inset: 0;
-	pointer-events: none;
-	background:
-		linear-gradient(135deg, rgba(255, 255, 255, 0.16), transparent 40%),
-		repeating-linear-gradient(
-			180deg,
-			rgba(122, 84, 51, 0.025) 0,
-			rgba(122, 84, 51, 0.025) 1px,
-			transparent 1px,
-			transparent 24px
-		);
-	opacity: 0.8;
+p,
+ul,
+ol,
+dl {
+	line-height: 1.65;
 }
 
 body,
@@ -176,11 +178,16 @@ input,
 select,
 textarea {
 	transition:
-		background-color 0.18s ease,
-		border-color 0.18s ease,
-		color 0.18s ease,
-		box-shadow 0.18s ease,
-		transform 0.18s ease;
+		background-color var(--duration-fast) var(--ease-out-soft),
+		border-color var(--duration-fast) var(--ease-out-soft),
+		color var(--duration-fast) var(--ease-out-soft),
+		box-shadow var(--duration-fast) var(--ease-out-soft),
+		transform var(--duration-fast) var(--ease-out-soft),
+		opacity var(--duration-fast) var(--ease-out-soft);
+}
+
+.button-icon {
+	transition: transform var(--duration-fast) var(--ease-out-soft);
 }
 
 button {
@@ -204,11 +211,6 @@ textarea:focus-visible {
 	outline-offset: 2px;
 }
 
-::selection {
-	background: var(--color-primary);
-	color: white;
-}
-
 /* Shared spinner */
 .spinner {
 	border: 3px solid var(--color-border);
@@ -218,7 +220,9 @@ textarea:focus-visible {
 }
 
 @keyframes spin {
-	to { transform: rotate(360deg); }
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {

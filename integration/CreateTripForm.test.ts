@@ -32,14 +32,24 @@ vi.mock('../src/lib/stores/vault.svelte', () => ({
 }))
 
 describe('createTripForm', () => {
-	it('renders and enables save when trip name is entered', async () => {
+	it('renders and enables save when required fields are valid', async () => {
 		const screen = await render(CreateTripForm)
 
 		await expect.element(screen.getByRole('heading', { name: 'New Trip' })).toBeVisible()
-		const saveButton = screen.getByRole('button', { name: 'Save' })
+		const saveButton = screen.getByRole('button', { name: 'Create Trip' })
 		await expect.element(saveButton).toBeDisabled()
 
 		await screen.getByRole('textbox', { name: 'Trip Name' }).fill('Rome')
 		await expect.element(saveButton).toBeEnabled()
+	})
+
+	it('shows a validation message for an invalid year', async () => {
+		const screen = await render(CreateTripForm)
+
+		await screen.getByRole('textbox', { name: 'Trip Name' }).fill('Rome')
+		await screen.getByRole('textbox', { name: 'Year' }).fill('26')
+
+		await expect.element(screen.getByText('Use a four-digit year, for example 2026.')).toBeVisible()
+		await expect.element(screen.getByRole('button', { name: 'Create Trip' })).toBeDisabled()
 	})
 })

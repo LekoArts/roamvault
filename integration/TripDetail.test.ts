@@ -30,7 +30,7 @@ describe('tripDetail', () => {
 	it('renders selected advanced trip details', async () => {
 		const screen = await render(TripDetail)
 		await expect.element(screen.getByText('Rome')).toBeVisible()
-		await expect.element(screen.getByText('Advanced')).toBeVisible()
+		await expect.element(screen.getByText('Advanced Trip', { exact: true })).toBeVisible()
 		await expect.element(screen.getByText('A, B')).toBeVisible()
 		await expect.element(screen.getByText('Day 1')).toBeVisible()
 		// Verify Museum appears in the Activities section (not just in a dropdown)

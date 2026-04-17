@@ -68,13 +68,12 @@
 		width: min(92vw, 620px);
 		background: var(--color-bg-card-strong);
 		color: var(--color-text);
-		box-shadow: var(--shadow-lg);
+		box-shadow: var(--shadow-md);
 		overscroll-behavior: contain;
 	}
 
 	dialog::backdrop {
 		background: var(--color-overlay);
-		backdrop-filter: blur(10px);
 	}
 
 	.modal-content {
@@ -91,7 +90,7 @@
 
 	.modal-header h2 {
 		margin: 0;
-		font-size: 1.75rem;
+		font-size: 1.5rem;
 		line-height: 1;
 	}
 
@@ -100,8 +99,8 @@
 		border: 1px solid var(--color-border);
 		cursor: pointer;
 		color: var(--color-text-muted);
-		width: 36px;
-		height: 36px;
+		width: 44px;
+		height: 44px;
 		padding: 0;
 		border-radius: 999px;
 		display: flex;

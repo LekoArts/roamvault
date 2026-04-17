@@ -269,8 +269,9 @@ describe('planningList', () => {
 		const select = document.querySelector('select.add-activity-select') as HTMLSelectElement
 		expect(select).not.toBeNull()
 		select.value = 'Seoul Tower'
+		select.dispatchEvent(new Event('change', { bubbles: true }))
 
-		const addBtn = screen.getByRole('button', { name: 'Add activity' })
+		const addBtn = screen.getByRole('button', { name: 'Add Seoul Tower to Seoul Days' })
 		await addBtn.click()
 
 		expect(onadd).toHaveBeenCalledOnce()
@@ -301,7 +302,7 @@ describe('planningList', () => {
 		})
 
 		await screen.getByText('Seoul Days').click()
-		const removeBtn = screen.getByRole('button', { name: 'Remove Seoul - Photos from 03.06.2026' })
+		const removeBtn = screen.getByRole('button', { name: 'Remove Seoul - Photos from Seoul Days on 03.06.2026' })
 		await removeBtn.click()
 
 		expect(onremove).toHaveBeenCalledOnce()
@@ -336,12 +337,14 @@ describe('planningList', () => {
 		const daySelect = document.querySelector('select.day-select') as HTMLSelectElement
 		expect(daySelect).not.toBeNull()
 		daySelect.value = '04.06.2026'
+		daySelect.dispatchEvent(new Event('change', { bubbles: true }))
 
 		const actSelect = document.querySelector('select.add-activity-select:not(.day-select)') as HTMLSelectElement
 		expect(actSelect).not.toBeNull()
 		actSelect.value = 'Seoul Tower'
+		actSelect.dispatchEvent(new Event('change', { bubbles: true }))
 
-		const addBtn = screen.getByRole('button', { name: 'Add activity' })
+		const addBtn = screen.getByRole('button', { name: 'Add Seoul Tower to Seoul Days on 04.06.2026' })
 		await addBtn.click()
 
 		expect(onadd).toHaveBeenCalledOnce()

@@ -5,6 +5,8 @@
 	import SourceLink from './SourceLink.svelte'
 	import TripCard from './TripCard.svelte'
 
+	let reconnecting = $state(false)
+
 	const sortedYears = $derived(
 		Object.keys(vaultStore.travelTree).sort((a, b) => b.localeCompare(a)),
 	)
@@ -13,12 +15,16 @@
 		sortedYears.reduce((count, year) => count + vaultStore.travelTree[year].length, 0),
 	)
 
-	if (!vaultStore.handle && !vaultStore.loading) {
-		vaultStore.reopenVault().then((ok) => {
-			if (!ok)
-				uiStore.navigate('vault-picker')
-		})
-	}
+	$effect(() => {
+		if (!vaultStore.handle && !vaultStore.loading && !reconnecting) {
+			reconnecting = true
+			vaultStore.reopenVault().then((ok) => {
+				reconnecting = false
+				if (!ok)
+					uiStore.navigate('vault-picker')
+			})
+		}
+	})
 
 	async function handleChangeVault() {
 		await vaultStore.closeVault()
@@ -29,13 +35,13 @@
 <div class='travel-list'>
 	<header class='hero'>
 		<div class='hero-top'>
-			<div>
-				<p class='eyebrow'>Vault overview</p>
+			<div class='hero-copy'>
 				<h1>{vaultStore.name}</h1>
+				<p class='hero-subtitle'>Your travel notes stay structured, local, and ready to open in Obsidian.</p>
 			</div>
 			<nav class='hero-actions' aria-label='Trip actions'>
 				<button type='button' class='btn-primary' onclick={() => uiStore.openCreateTripModal()}>
-					<Plus size={16} aria-hidden='true' />
+					<Plus class='button-icon' size={16} aria-hidden='true' />
 					New Trip
 				</button>
 				<button type='button' class='btn-secondary' onclick={handleChangeVault}>
@@ -54,17 +60,22 @@
 			<div class='status-list'>
 				<span class='status-badge' class:ok={vaultStore.hasTravelFolder} class:missing={!vaultStore.hasTravelFolder}>
 					{#if vaultStore.hasTravelFolder}<Check size={12} aria-hidden='true' />{:else}<TriangleAlert size={12} aria-hidden='true' />{/if}
-					Travel
+					Travel folder
 				</span>
 				<span class='status-badge' class:ok={vaultStore.hasTemplatesFolder} class:missing={!vaultStore.hasTemplatesFolder}>
 					{#if vaultStore.hasTemplatesFolder}<Check size={12} aria-hidden='true' />{:else}<TriangleAlert size={12} aria-hidden='true' />{/if}
-					_templates
+					Templates folder
 				</span>
 			</div>
 		</div>
 	</header>
 
-	{#if vaultStore.loading}
+	{#if reconnecting}
+		<div class='state-panel' role='status' aria-live='polite'>
+			<div class='spinner' aria-hidden='true'></div>
+			<p>Reconnecting to your vault</p>
+		</div>
+	{:else if vaultStore.loading}
 		<div class='state-panel' role='status' aria-live='polite'>
 			<div class='spinner' aria-hidden='true'></div>
 			<p>Loading travel data</p>
@@ -115,36 +126,36 @@
 	}
 
 	.hero {
-		margin-bottom: var(--space-16);
-		padding: clamp(1.5rem, 4vw, 2.5rem);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-lg);
-		background: var(--color-bg-card);
-		box-shadow: var(--shadow-sm);
-		backdrop-filter: blur(18px);
+		margin-bottom: var(--space-20);
+		padding: clamp(1.75rem, 4vw, 2.5rem) 0;
+		border-bottom: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+		display: grid;
+		gap: var(--space-12);
 	}
 
-	.year-section,
 	.state-panel {
-		border: 1px solid var(--color-border);
 		background: var(--color-bg-card);
 		box-shadow: var(--shadow-sm);
 	}
 
 	.hero-top {
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-start;
-		gap: var(--space-8);
-		flex-wrap: wrap;
+		display: grid;
+		grid-template-columns: minmax(0, 1.6fr) auto;
+		align-items: start;
+		gap: var(--space-10);
 	}
 
-	.eyebrow {
-		margin: 0 0 var(--space-3);
-		font-size: 0.75rem;
-		letter-spacing: 0.16em;
-		text-transform: uppercase;
+	.hero-copy {
+		display: grid;
+		gap: var(--space-4);
+		max-width: 44rem;
+	}
+
+	.hero-subtitle {
+		max-width: 34rem;
+		margin: var(--space-4) 0 0;
 		color: var(--color-text-muted);
+		font-size: 1rem;
 	}
 
 	h1 {
@@ -154,50 +165,57 @@
 	}
 
 	.hero-bottom {
-		display: flex;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
 		align-items: center;
-		justify-content: space-between;
-		gap: var(--space-6);
-		flex-wrap: wrap;
-		margin-top: var(--space-10);
-		padding-top: var(--space-10);
-		border-top: 1px solid var(--color-border);
+		gap: var(--space-6) var(--space-10);
+		padding-top: var(--space-8);
+		border-top: 1px solid color-mix(in srgb, var(--color-border) 44%, transparent);
 	}
 
 	.hero-summary {
 		margin: 0;
-		font-size: 0.9rem;
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--space-3);
+		max-width: 38rem;
+		font-size: 0.98rem;
 		color: var(--color-text-muted);
 	}
 
 	.demo-badge {
-		display: inline-block;
-		margin-left: var(--space-4);
+		display: inline-flex;
+		align-items: center;
+		margin-left: 0;
 		padding: var(--space-1) var(--space-4);
 		font-size: 0.75rem;
 		font-weight: 500;
 		letter-spacing: 0.02em;
 		border-radius: var(--radius-pill);
 		background: var(--color-warning);
-		color: white;
+		color: var(--color-primary-contrast);
 		vertical-align: middle;
 	}
 
 	.status-list {
 		display: flex;
 		align-items: center;
+		justify-content: flex-end;
 		gap: var(--space-3);
+		flex-wrap: wrap;
 	}
 
 	.status-badge {
 		display: inline-flex;
 		align-items: center;
 		gap: var(--space-3);
-		font-size: 0.72rem;
+		font-size: 0.75rem;
 		font-weight: 600;
+		letter-spacing: 0.04em;
 		padding: var(--space-2) var(--space-5);
 		border-radius: var(--radius-pill);
-		font-family: var(--font-mono);
+		font-family: var(--font-sans);
 		border: 1px solid transparent;
 	}
 
@@ -216,6 +234,7 @@
 	.hero-actions {
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: flex-end;
 		gap: var(--space-4);
 	}
 
@@ -248,6 +267,11 @@
 		transform: translateY(-1px);
 	}
 
+	.btn-primary:hover :global(.button-icon),
+	.btn-primary:focus-visible :global(.button-icon) {
+		transform: translateX(2px) rotate(90deg);
+	}
+
 	.btn-primary:active {
 		transform: translateY(0);
 	}
@@ -274,12 +298,17 @@
 
 	.years {
 		display: grid;
-		gap: var(--space-10);
+		gap: var(--space-16);
 	}
 
 	.year-section {
-		padding: var(--space-10);
-		border-radius: var(--radius-lg);
+		padding-top: var(--space-12);
+		border-top: 1px solid color-mix(in srgb, var(--color-border) 56%, transparent);
+	}
+
+	.year-section:first-child {
+		padding-top: 0;
+		border-top: none;
 	}
 
 	.year-header {
@@ -307,9 +336,12 @@
 	}
 
 	.state-panel {
+		max-width: 42rem;
+		margin: 0 auto;
 		text-align: center;
 		padding: var(--space-24) var(--space-12);
 		border-radius: var(--radius-lg);
+		border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
 	}
 
 	.empty-state h2 {
@@ -319,7 +351,8 @@
 
 	.empty-state p,
 	.error-message p {
-		margin: 0 0 var(--space-10);
+		max-width: 34rem;
+		margin: 0 auto var(--space-10);
 		color: var(--color-text-muted);
 	}
 
@@ -339,12 +372,15 @@
 		}
 
 		.hero-top {
-			flex-direction: column;
+			grid-template-columns: 1fr;
 		}
 
 		.hero-bottom {
-			flex-direction: column;
-			align-items: flex-start;
+			grid-template-columns: 1fr;
+		}
+
+		.status-list {
+			justify-content: flex-start;
 		}
 
 		.year-header {
@@ -365,13 +401,16 @@
 
 	footer {
 		margin: var(--space-20) 0 var(--space-12);
+		padding-top: var(--space-8);
 		text-align: center;
-		font-size: 1rem;
+		font-size: 0.95rem;
 		color: var(--color-text-muted);
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: var(--space-10);
+		gap: var(--space-6);
+		flex-wrap: wrap;
+		border-top: 1px solid color-mix(in srgb, var(--color-border) 44%, transparent);
 	}
 
 	footer a {

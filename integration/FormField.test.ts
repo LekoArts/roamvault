@@ -66,4 +66,19 @@ describe('formField', () => {
 		await checkbox.click()
 		expect(onchange).toHaveBeenLastCalledWith(true)
 	})
+
+	it('connects helper text without reusing duplicate ids', async () => {
+		const screen = await render(FormField, {
+			label: 'Start Date',
+			type: 'date',
+			initialValue: '2026-03-15',
+			description: 'Choose the first day of the trip.',
+			onchange: vi.fn(),
+		})
+
+		const input = screen.getByLabelText('Start Date')
+		const description = screen.getByText('Choose the first day of the trip.')
+		await expect.element(input).toHaveAttribute('aria-describedby')
+		await expect.element(description).toHaveAttribute('id')
+	})
 })

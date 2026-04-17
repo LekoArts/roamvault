@@ -46,10 +46,21 @@ describe('createItemForm', () => {
 		const screen = await render(CreateItemForm)
 		await expect.element(screen.getByRole('heading', { name: 'New Day Plan' })).toBeVisible()
 
-		const saveButton = screen.getByRole('button', { name: 'Save' })
+		const saveButton = screen.getByRole('button', { name: 'New Day Plan' })
 		await expect.element(saveButton).toBeDisabled()
 
 		await screen.getByRole('textbox', { name: 'Name' }).fill('Day 1')
 		await expect.element(saveButton).toBeEnabled()
+	})
+
+	it('shows a validation message when end date is before the start date', async () => {
+		const screen = await render(CreateItemForm)
+		await screen.getByRole('textbox', { name: 'Name' }).fill('Day 1')
+
+		await screen.getByLabelText('Start date').fill('2026-03-15')
+		await screen.getByLabelText('End date').fill('2026-03-14')
+
+		await expect.element(screen.getByText('End date must be the same as or later than the start date.')).toBeVisible()
+		await expect.element(screen.getByRole('button', { name: 'New Day Plan' })).toBeDisabled()
 	})
 })

@@ -67,6 +67,8 @@
 	})
 
 	const banner = $derived(trip.frontmatter.banner as string | undefined)
+	const canShowClassificationDetails = typeof window !== 'undefined'
+		&& (import.meta.env.DEV || window.location.search.includes('metadata=1'))
 
 	const classificationChecks = $derived.by(() => {
 		const metadata = trip.classificationMetadata
@@ -74,10 +76,10 @@
 			return []
 
 		return [
-			{ label: 'frontmatter.base contains Travel.base', matched: metadata.hasTravelBase },
-			{ label: 'body contains ![[Roadtrip.base]]', matched: metadata.hasRoadtripBase },
-			{ label: 'body contains ![[Planning.base]]', matched: metadata.hasPlanningBase },
-			{ label: 'body contains ![[Activities.base]]', matched: metadata.hasActivitiesBase },
+			{ label: 'Main trip template is linked', matched: metadata.hasTravelBase },
+			{ label: 'Roadtrip section is embedded', matched: metadata.hasRoadtripBase },
+			{ label: 'Planning section is embedded', matched: metadata.hasPlanningBase },
+			{ label: 'Activities section is embedded', matched: metadata.hasActivitiesBase },
 		]
 	})
 </script>
@@ -97,17 +99,12 @@
 
 		<div class='trip-content'>
 			<div class='trip-title-row'>
-				<div>
-					<p class='eyebrow'>Trip overview</p>
+				<div class='trip-heading'>
 					<h1>{trip.name}</h1>
+					<p class='trip-subtitle'>{typeLabel} in your vault</p>
 				</div>
 				<div class='trip-title-actions'>
 					<span class='type-label {typeClass}'>{typeLabel}</span>
-					{#if trip.classificationMetadata}
-						<button type='button' class='btn-metadata' onclick={() => uiStore.toggleTripMetadata()}>
-							{uiStore.showTripMetadata ? 'Hide metadata' : 'Show metadata'}
-						</button>
-					{/if}
 				</div>
 			</div>
 
@@ -126,24 +123,31 @@
 				{/if}
 			</div>
 
-			{#if uiStore.showTripMetadata && trip.classificationMetadata}
-				<section class='metadata-panel'>
-					<div>
-						<p class='metadata-label'>Detected type</p>
-						<p class='metadata-value'>{trip.type}</p>
-					</div>
-					<div>
-						<p class='metadata-label'>frontmatter.base</p>
-						<p class='metadata-value'><code>{trip.classificationMetadata.base || '(empty)'}</code></p>
-					</div>
-					<ul>
-						{#each classificationChecks as check}
-							<li class:matched={check.matched} class:missing={!check.matched}>
-								{check.matched ? '✓' : '✗'} {check.label}
-							</li>
-						{/each}
-					</ul>
-				</section>
+			{#if trip.classificationMetadata && canShowClassificationDetails}
+				<details class='metadata-disclosure' open={uiStore.showTripMetadata} ontoggle={(event) => {
+					const open = (event.currentTarget as HTMLDetailsElement).open
+					if (open !== uiStore.showTripMetadata)
+						uiStore.toggleTripMetadata()
+				}}>
+					<summary>Classification details</summary>
+					<section class='metadata-panel'>
+						<div>
+							<p class='metadata-label'>Detected layout</p>
+							<p class='metadata-value'>{typeLabel}</p>
+						</div>
+						<div>
+							<p class='metadata-label'>Base template reference</p>
+							<p class='metadata-value'><code>{trip.classificationMetadata.base || '(empty)'}</code></p>
+						</div>
+						<ul>
+							{#each classificationChecks as check}
+								<li class:matched={check.matched} class:missing={!check.matched}>
+									{check.matched ? '✓' : '✗'} {check.label}
+								</li>
+							{/each}
+						</ul>
+					</section>
+				</details>
 			{/if}
 		</div>
 	</section>
@@ -152,7 +156,7 @@
 		<div class='sub-sections'>
 			<section class='sub-section'>
 				<div class='section-toolbar'>
-					<div>
+					<div class='section-heading'>
 						<p class='section-kicker'>Structure</p>
 						<h2>Planning</h2>
 					</div>
@@ -171,7 +175,7 @@
 
 			<section class='sub-section'>
 				<div class='section-toolbar'>
-					<div>
+					<div class='section-heading'>
 						<p class='section-kicker'>Places</p>
 						<h2>Activities</h2>
 					</div>
@@ -187,7 +191,7 @@
 		<div class='sub-sections'>
 			<section class='sub-section'>
 				<div class='section-toolbar'>
-					<div>
+					<div class='section-heading'>
 						<p class='section-kicker'>Route</p>
 						<h2>Stops</h2>
 					</div>
@@ -213,14 +217,9 @@
 		margin-bottom: var(--space-8);
 	}
 
-	.hero-card,
-	.sub-section {
-		border: 1px solid var(--color-border);
-		background: var(--color-bg-card);
-		box-shadow: var(--shadow-sm);
-	}
-
 	.hero-card {
+		border: 1px solid color-mix(in srgb, var(--color-border) 64%, transparent);
+		background: color-mix(in srgb, var(--color-bg-card-strong) 92%, transparent);
 		border-radius: var(--radius-lg);
 		overflow: hidden;
 	}
@@ -236,7 +235,12 @@
 		padding: clamp(1.5rem, 4vw, 2.5rem);
 	}
 
-	.eyebrow,
+	.trip-subtitle {
+		margin: var(--space-4) 0 0;
+		color: var(--color-text-muted);
+		font-size: 1rem;
+	}
+
 	.section-kicker,
 	.metadata-label {
 		margin: 0 0 var(--space-3);
@@ -247,11 +251,15 @@
 	}
 
 	.trip-title-row {
-		display: flex;
-		justify-content: space-between;
-		gap: var(--space-8);
-		align-items: flex-start;
+		display: grid;
+		grid-template-columns: minmax(0, 1.4fr) auto;
+		gap: var(--space-8) var(--space-10);
+		align-items: start;
 		margin-bottom: var(--space-10);
+	}
+
+	.trip-heading {
+		max-width: 36rem;
 	}
 
 	h1,
@@ -276,7 +284,6 @@
 	}
 
 	.type-label,
-	.btn-metadata,
 	.btn-back,
 	.btn-add {
 		display: inline-flex;
@@ -309,22 +316,19 @@
 		color: var(--color-badge-roadtrip);
 	}
 
-	.btn-back,
-	.btn-metadata {
+	.btn-back {
 		background: transparent;
 		border: 1px solid var(--color-border-strong);
 		color: var(--color-text);
 		cursor: pointer;
 	}
 
-	.btn-back:hover,
-	.btn-metadata:hover {
+	.btn-back:hover {
 		background: var(--color-bg-hover);
 		border-color: var(--color-primary);
 	}
 
-	.btn-back:active,
-	.btn-metadata:active {
+	.btn-back:active {
 		background: var(--color-bg-accent);
 	}
 
@@ -332,6 +336,7 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--space-4);
+		max-width: 42rem;
 	}
 
 	.meta-item {
@@ -344,12 +349,36 @@
 		color: var(--color-text-muted);
 	}
 
+	.metadata-disclosure {
+		margin-top: var(--space-8);
+	}
+
+	.metadata-disclosure summary {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--space-2);
+		font-size: 0.85rem;
+		font-weight: 600;
+		color: var(--color-text-muted);
+		cursor: pointer;
+		list-style: none;
+	}
+
+	.metadata-disclosure summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.metadata-disclosure summary:hover {
+		color: var(--color-text);
+	}
+
 	.metadata-panel {
-		margin-top: var(--space-10);
+		margin-top: var(--space-4);
+		max-width: 34rem;
 		padding: var(--space-8);
 		border-radius: var(--radius-md);
-		background: var(--color-bg-accent);
-		border: 1px solid var(--color-border);
+		background: color-mix(in srgb, var(--color-bg-accent) 82%, var(--color-bg-card-strong));
+		border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
 		display: grid;
 		gap: var(--space-6);
 	}
@@ -377,21 +406,25 @@
 
 	.sub-sections {
 		display: grid;
-		gap: var(--space-8);
-		margin-top: var(--space-10);
+		gap: var(--space-20);
+		margin-top: var(--space-16);
 	}
 
 	.sub-section {
-		padding: var(--space-10);
-		border-radius: var(--radius-lg);
+		padding: var(--space-12) 0 0;
+		border-top: 1px solid color-mix(in srgb, var(--color-border) 64%, transparent);
 	}
 
 	.section-toolbar {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		gap: var(--space-6);
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		align-items: start;
+		gap: var(--space-6) var(--space-10);
 		margin-bottom: var(--space-8);
+	}
+
+	.section-heading {
+		max-width: 32rem;
 	}
 
 	.btn-add {
@@ -418,16 +451,14 @@
 
 		.trip-title-row,
 		.section-toolbar {
-			flex-direction: column;
-			align-items: flex-start;
+			grid-template-columns: 1fr;
 		}
 
 		.trip-title-actions {
 			justify-content: flex-start;
 		}
 
-		.btn-add,
-		.btn-metadata {
+		.btn-add {
 			width: 100%;
 		}
 	}

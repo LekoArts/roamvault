@@ -4,6 +4,18 @@ const dateFormatter = new Intl.DateTimeFormat('de-DE', {
 	year: 'numeric',
 })
 
+const FIELD_LABELS: Record<string, string> = {
+	startDate: 'Start date',
+	endDate: 'End date',
+	baseUrl: 'Base URL',
+	coverImage: 'Cover image',
+}
+
+const CAMEL_CASE_RE = /([a-z0-9])([A-Z])/g
+const SEPARATOR_RE = /[_-]+/g
+const WHITESPACE_RE = /\s+/g
+const FIRST_CHAR_RE = /^./
+
 /** Format a YYYY-MM-DD string for display using locale-aware formatting. */
 export function formatDate(dateStr: unknown): string {
 	if (typeof dateStr !== 'string' || !dateStr)
@@ -43,4 +55,16 @@ export function formatDateRange(start: unknown, end: unknown): string {
 	if (e && e !== s)
 		return `${s} \u2013 ${e}`
 	return s
+}
+
+/** Convert frontmatter-style keys into user-facing labels. */
+export function formatFieldLabel(key: string): string {
+	if (FIELD_LABELS[key])
+		return FIELD_LABELS[key]
+	return key
+		.replace(CAMEL_CASE_RE, '$1 $2')
+		.replace(SEPARATOR_RE, ' ')
+		.replace(WHITESPACE_RE, ' ')
+		.trim()
+		.replace(FIRST_CHAR_RE, char => char.toUpperCase())
 }

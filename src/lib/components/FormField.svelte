@@ -1,3 +1,7 @@
+<script module lang='ts'>
+	let nextFieldId = 0
+</script>
+
 <script lang='ts'>
 	import { untrack } from 'svelte'
 
@@ -12,6 +16,8 @@
 		initialValue,
 		required = false,
 		placeholder = '',
+		description = '',
+		error = '',
 		min = '',
 		max = '',
 		onchange,
@@ -21,6 +27,8 @@
 		initialValue: FieldValue
 		required?: boolean
 		placeholder?: string
+		description?: string
+		error?: string
 		min?: string
 		max?: string
 		onchange: (value: FieldValue) => void
@@ -28,6 +36,10 @@
 
 	const init = untrack(() => initialValue)
 	const fieldName = untrack(() => label.toLowerCase().replace(WHITESPACE_RE, '-'))
+	const fieldId = untrack(() => `${fieldName}-${++nextFieldId}`)
+	const descriptionId = `${fieldId}-description`
+	const errorId = `${fieldId}-error`
+	const describedBy = $derived([description ? descriptionId : undefined, error ? errorId : undefined].filter(Boolean).join(' ') || undefined)
 
 	let textValue = $state(typeof init === 'string' ? init : '')
 	let checked = $state(init === true)
@@ -59,15 +71,17 @@
 		<label class='checkbox-label'>
 			<input
 				type='checkbox'
-				id={label}
+				id={fieldId}
 				name={fieldName}
+				aria-describedby={describedBy}
+				aria-invalid={error ? 'true' : undefined}
 				{checked}
 				onchange={handleCheckbox}
 			/>
 			<span>Mark as done?</span>
 		</label>
 	{:else}
-		<label for={label}>
+		<label for={fieldId}>
 			{label}
 			{#if required}<span class='required'>*</span>{/if}
 		</label>
@@ -75,10 +89,12 @@
 		{#if type === 'date'}
 			<input
 				type='date'
-				id={label}
+				id={fieldId}
 				name={fieldName}
 				autocomplete='off'
 				value={textValue}
+				aria-describedby={describedBy}
+				aria-invalid={error ? 'true' : undefined}
 				{required}
 				min={min || undefined}
 				max={max || undefined}
@@ -87,10 +103,12 @@
 		{:else if type === 'url'}
 			<input
 				type='url'
-				id={label}
+				id={fieldId}
 				name={fieldName}
 				autocomplete='off'
 				value={textValue}
+				aria-describedby={describedBy}
+				aria-invalid={error ? 'true' : undefined}
 				{required}
 				{placeholder}
 				oninput={handleTextInput}
@@ -98,24 +116,34 @@
 		{:else if type === 'array'}
 			<input
 				type='text'
-				id={label}
+				id={fieldId}
 				name={fieldName}
 				autocomplete='off'
 				value={arrayText}
+				aria-describedby={describedBy}
+				aria-invalid={error ? 'true' : undefined}
 				placeholder={placeholder || 'Comma-separated values'}
 				oninput={handleArrayInput}
 			/>
 		{:else}
 			<input
 				type='text'
-				id={label}
+				id={fieldId}
 				name={fieldName}
 				autocomplete='off'
 				value={textValue}
+				aria-describedby={describedBy}
+				aria-invalid={error ? 'true' : undefined}
 				{required}
 				{placeholder}
 				oninput={handleTextInput}
 			/>
+		{/if}
+		{#if description}
+			<p id={descriptionId} class='field-description'>{description}</p>
+		{/if}
+		{#if error}
+			<p id={errorId} class='field-error'>{error}</p>
 		{/if}
 	{/if}
 </div>
@@ -140,6 +168,20 @@
 		margin-left: var(--space-1);
 	}
 
+	.field-description {
+		margin: 0;
+		font-size: 0.85rem;
+		line-height: 1.45;
+		color: var(--color-text-muted);
+	}
+
+	.field-error {
+		margin: 0;
+		font-size: 0.85rem;
+		line-height: 1.45;
+		color: var(--color-danger);
+	}
+
 	input[type='text'],
 	input[type='url'],
 	input[type='date'] {
@@ -157,6 +199,10 @@
 
 	input::placeholder {
 		color: color-mix(in srgb, var(--color-text-muted) 80%, transparent);
+	}
+
+	input[aria-invalid='true'] {
+		border-color: color-mix(in srgb, var(--color-danger) 64%, var(--color-border));
 	}
 
 	input:focus-visible {

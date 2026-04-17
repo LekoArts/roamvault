@@ -3,6 +3,7 @@
 	import { uiStore } from '../stores/ui.svelte'
 	import { vaultStore } from '../stores/vault.svelte'
 	import { getEditableFields, getTemplate } from '../templates/engine'
+	import { formatFieldLabel } from '../utils/format'
 	import FormField from './FormField.svelte'
 	import Modal from './Modal.svelte'
 
@@ -18,9 +19,25 @@
 	const tripEnd = $derived(typeof trip.frontmatter.endDate === 'string' ? trip.frontmatter.endDate : '')
 
 	let itemStartDate = $state(untrack(() => tripStart))
+	let itemEndDate = $state(untrack(() => tripStart))
 	const endDateMin = $derived(itemStartDate > tripStart ? itemStartDate : tripStart)
 
 	const formValues: Record<string, unknown> = {}
+	const dateErrors = $derived.by(() => {
+		const errors: Record<string, string> = {}
+		if (itemStartDate && tripStart && itemStartDate < tripStart)
+			errors.startDate = `Start date must be on or after ${tripStart}.`
+		if (itemStartDate && tripEnd && itemStartDate > tripEnd)
+			errors.startDate = `Start date must be on or before ${tripEnd}.`
+		if (itemEndDate && tripStart && itemEndDate < tripStart)
+			errors.endDate = `End date must be on or after ${tripStart}.`
+		if (itemEndDate && tripEnd && itemEndDate > tripEnd)
+			errors.endDate = `End date must be on or before ${tripEnd}.`
+		if (!errors.endDate && itemStartDate && itemEndDate && itemEndDate < itemStartDate)
+			errors.endDate = 'End date must be the same as or later than the start date.'
+		return errors
+	})
+	const canSave = $derived(Boolean(itemName.trim()) && Object.keys(dateErrors).length === 0)
 
 	function defaultFor(field: typeof fields[number]): string | string[] | boolean {
 		let val: string | string[] | boolean = ''
@@ -34,6 +51,16 @@
 		return val
 	}
 
+	function getFieldDescription(field: typeof fields[number]) {
+		if (field.type === 'array')
+			return 'Separate multiple values with commas.'
+		if (field.key === 'startDate')
+			return `Choose a day inside ${trip.name}.`
+		if (field.key === 'endDate')
+			return 'Choose the last day. It cannot be before the start date.'
+		return ''
+	}
+
 	const modalTitle = $derived.by(() => {
 		switch (itemType) {
 			case 'Activity': return 'New Activity'
@@ -43,8 +70,17 @@
 		}
 	})
 
+	const introCopy = $derived.by(() => {
+		switch (itemType) {
+			case 'Activity': return 'Add a place, reservation, or stop you want to link back into the trip.'
+			case 'Planning': return 'Create a planning note for a day or part of the trip. You can assign activities after saving.'
+			case 'Stop': return 'Add one stop on the route for this roadtrip.'
+			default: return 'Add a new note inside this trip.'
+		}
+	})
+
 	async function handleSave() {
-		if (!itemName.trim() || !trip || !itemType)
+		if (!canSave || !trip || !itemType)
 			return
 
 		saving = true
@@ -84,6 +120,8 @@
 		e.preventDefault()
 		handleSave()
 	}}>
+		<p class='form-intro'>{introCopy}</p>
+		<p class='form-note'>Required fields are marked with an asterisk.</p>
 		<div class='form-fields'>
 			<FormField
 				label='Name'
@@ -91,22 +129,27 @@
 				initialValue=''
 				required
 				placeholder={itemType === 'Activity' ? 'e.g. Visit Colosseum' : itemType === 'Stop' ? 'e.g. Tirana' : 'e.g. Day 1'}
+				description='This becomes the note title inside the selected trip.'
 				onchange={(v) => { itemName = v as string }}
 			/>
 
 			{#key itemType}
 				{#each fields as field (field.key)}
 					<FormField
-						label={field.key}
+						label={formatFieldLabel(field.key)}
 						type={field.type}
 						initialValue={defaultFor(field)}
 						placeholder={field.type === 'url' ? 'https://' : ''}
+						description={getFieldDescription(field)}
+						error={dateErrors[field.key] ?? ''}
 						min={field.key === 'endDate' ? endDateMin : field.type === 'date' ? tripStart : ''}
 						max={field.type === 'date' ? tripEnd : ''}
 						onchange={(v) => {
 							formValues[field.key] = v
 							if (field.key === 'startDate')
 								itemStartDate = v as string
+							if (field.key === 'endDate')
+								itemEndDate = v as string
 						}}
 					/>
 				{/each}
@@ -119,8 +162,8 @@
 
 		<div class='form-actions'>
 			<button type='button' class='btn-cancel' onclick={() => uiStore.closeModal()}>Cancel</button>
-			<button type='submit' class='btn-save' disabled={saving || !itemName.trim()}>
-				{saving ? 'Saving' : 'Save'}
+			<button type='submit' class='btn-save' disabled={saving || !canSave}>
+				{saving ? 'Creating…' : modalTitle}
 			</button>
 		</div>
 	</form>
@@ -131,6 +174,18 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-10);
+	}
+
+	.form-intro {
+		margin: 0;
+		color: var(--color-text-muted);
+		font-size: 0.95rem;
+	}
+
+	.form-note {
+		margin: calc(var(--space-4) * -1) 0 0;
+		font-size: 0.85rem;
+		color: var(--color-text-muted);
 	}
 
 	.form-fields {

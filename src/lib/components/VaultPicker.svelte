@@ -50,13 +50,16 @@
 {:else}
 	<div class='vault-picker'>
 		<div class='vault-picker-inner'>
-			<div class='eyebrow'>Travel planning inside your vault</div>
-			<div class='logo-mark'>
-				<FolderPlus size={40} strokeWidth={1.5} aria-hidden='true' />
-			</div>
+			<div class='intro'>
+				<div class='logo-mark'>
+					<FolderPlus size={40} strokeWidth={1.5} aria-hidden='true' />
+				</div>
 
-			<h1>RoamVault</h1>
-			<p class='tagline'>Runs entirely in the browser.<br />Your data never leaves your device.</p>
+				<div class='intro-copy'>
+					<h1>RoamVault</h1>
+					<p class='tagline'>Open your Obsidian travel vault in the browser and keep every change on your device.</p>
+				</div>
+			</div>
 
 			{#if unsupported && !demoEnabled}
 				<div class='message-card unsupported'>
@@ -69,7 +72,7 @@
 				</div>
 
 				<button class='open-vault-btn' onclick={handleOpenDemo}>
-					<Play size={18} aria-hidden='true' />
+					<Play class='button-icon' size={18} aria-hidden='true' />
 					Open Demo Vault
 				</button>
 			{:else if phase === 'opening' || vaultStore.loading}
@@ -79,15 +82,15 @@
 				</div>
 			{:else}
 				<button class='open-vault-btn' onclick={handleOpen}>
-					<FolderOpen size={18} aria-hidden='true' />
+					<FolderOpen class='button-icon' size={18} aria-hidden='true' />
 					Open Vault
 				</button>
 
 				<p class='supporting-copy'>
 					{#if demoEnabled}
-						Or <button class='demo-link' onclick={handleOpenDemo}>try the demo vault</button> with sample data.
+						Need a preview first? <button class='demo-link' onclick={handleOpenDemo}>Open the demo vault</button> with sample trips.
 					{:else}
-						Reconnect to your existing travel vault or choose a fresh one to start planning.
+						Reconnect to your travel vault or choose a new one to start planning.
 					{/if}
 				</p>
 
@@ -112,23 +115,27 @@
 	}
 
 	.vault-picker-inner {
-		width: min(100%, 36rem);
-		padding: clamp(2rem, 4vw, 3.5rem);
-		border: 1px solid var(--color-border);
+		width: min(100%, 42rem);
+		padding: clamp(2rem, 4vw, 3.25rem);
 		border-radius: var(--radius-lg);
-		background: var(--color-bg-card);
-		box-shadow: var(--shadow-lg);
-		backdrop-filter: blur(22px);
-		text-align: center;
+		background: color-mix(in srgb, var(--color-bg-card-strong) 92%, transparent);
+		border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
 		margin-bottom: var(--space-12);
+		display: grid;
+		gap: var(--space-14);
 	}
 
-	.eyebrow {
-		font-size: 0.75rem;
-		letter-spacing: 0.16em;
-		text-transform: uppercase;
-		color: var(--color-text-muted);
-		margin-bottom: var(--space-8);
+	.intro {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		align-items: start;
+		gap: var(--space-10);
+	}
+
+	.intro-copy {
+		display: grid;
+		gap: var(--space-6);
+		max-width: 32rem;
 	}
 
 	.logo-mark {
@@ -138,23 +145,25 @@
 		width: 80px;
 		height: 80px;
 		border-radius: 28px;
-		background: linear-gradient(145deg, var(--color-primary), var(--color-primary-strong));
-		color: var(--color-primary-contrast);
-		box-shadow: var(--shadow-md);
-		margin-bottom: var(--space-12);
+		background: var(--color-primary-soft);
+		border: 1px solid color-mix(in srgb, var(--color-primary) 18%, transparent);
+		color: var(--color-primary);
+		box-shadow: var(--shadow-sm);
+		transform-origin: center;
 	}
 
 	h1 {
 		font-size: clamp(2.5rem, 8vw, 4rem);
 		line-height: 0.95;
-		margin: 0 0 var(--space-6);
+		margin: 0;
 	}
 
 	.tagline {
 		color: var(--color-text-muted);
-		margin: 0 auto var(--space-16);
+		margin: 0;
 		font-size: 1.05rem;
-		max-width: 28rem;
+		line-height: 1.65;
+		max-width: 30rem;
 	}
 
 	.open-vault-btn {
@@ -179,6 +188,11 @@
 		transform: translateY(-1px);
 	}
 
+	.open-vault-btn:hover :global(.button-icon),
+	.open-vault-btn:focus-visible :global(.button-icon) {
+		transform: translateX(2px);
+	}
+
 	.open-vault-btn:active {
 		transform: translateY(0);
 	}
@@ -199,14 +213,16 @@
 	}
 
 	.supporting-copy {
-		margin: var(--space-10) auto 0;
-		font-size: 0.9rem;
+		margin: var(--space-8) auto 0;
+		font-size: 0.95rem;
+		line-height: 1.6;
 		color: var(--color-text-muted);
-		max-width: 40ch;
+		max-width: 38ch;
 	}
 
 	.message-card,
 	.loading-card {
+		max-width: 34rem;
 		padding: var(--space-12);
 		border-radius: var(--radius-md);
 		background: var(--color-bg-accent);
@@ -237,5 +253,33 @@
 		margin-top: var(--space-8);
 		color: var(--color-danger);
 		font-size: 0.875rem;
+	}
+
+	@media (max-width: 640px) {
+		.vault-picker {
+			padding: var(--space-10);
+		}
+
+		.vault-picker-inner {
+			gap: var(--space-12);
+		}
+
+		.intro {
+			grid-template-columns: 1fr;
+			gap: var(--space-8);
+		}
+
+		.logo-mark {
+			width: 72px;
+			height: 72px;
+		}
+
+		.open-vault-btn {
+			width: 100%;
+		}
+
+		.supporting-copy {
+			max-width: none;
+		}
 	}
 </style>

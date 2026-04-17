@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatDate, formatDateRange, generateDateRange } from './format'
+import { formatDate, formatDateRange, formatFieldLabel, generateDateRange } from './format'
 
 describe('formatDate', () => {
 	it('formats a YYYY-MM-DD string', () => {
@@ -78,5 +78,21 @@ describe('generateDateRange', () => {
 
 	it('returns empty array for invalid date strings', () => {
 		expect(generateDateRange('not-a-date', '2026-06-04')).toEqual([])
+	})
+})
+
+describe('formatFieldLabel', () => {
+	it('humanizes known date keys', () => {
+		expect(formatFieldLabel('startDate')).toBe('Start date')
+		expect(formatFieldLabel('endDate')).toBe('End date')
+	})
+
+	it('humanizes camelCase and snake_case keys', () => {
+		expect(formatFieldLabel('coverImage')).toBe('Cover image')
+		expect(formatFieldLabel('trip_type')).toBe('Trip type')
+	})
+
+	it('preserves acronyms for known labels', () => {
+		expect(formatFieldLabel('baseUrl')).toBe('Base URL')
 	})
 })
