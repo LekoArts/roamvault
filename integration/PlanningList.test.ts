@@ -355,6 +355,47 @@ describe('planningList', () => {
 		)
 	})
 
+	it('falls back to the first available activity after assignment updates the options', async () => {
+		const screen = await render(PlanningList, {
+			props: {
+				planningItems: [
+					{
+						name: 'Seoul Days',
+						path: 'p1',
+						frontmatter: { startDate: '2026-06-03', endDate: '2026-06-04', Activities: ['[[Seoul - Photos]]'] },
+						content: multiDayContent,
+					},
+				],
+				activities,
+				onadd: vi.fn(),
+			},
+		})
+
+		await screen.getByText('Seoul Days').click()
+
+		const actSelect = document.querySelector('select.add-activity-select:not(.day-select)') as HTMLSelectElement
+		expect(actSelect.value).toBe('Seoul Sky')
+		actSelect.value = 'Seoul Tower'
+		actSelect.dispatchEvent(new Event('change', { bubbles: true }))
+		expect(actSelect.value).toBe('Seoul Tower')
+
+		await screen.rerender({
+			planningItems: [
+				{
+					name: 'Seoul Days',
+					path: 'p1',
+					frontmatter: { startDate: '2026-06-03', endDate: '2026-06-04', Activities: ['[[Seoul - Photos]]', '[[Seoul Tower]]'] },
+					content: multiDayContent,
+				},
+			],
+			activities,
+			onadd: vi.fn(),
+		})
+
+		const updatedSelect = document.querySelector('select.add-activity-select:not(.day-select)') as HTMLSelectElement
+		expect(updatedSelect.value).toBe('Seoul Sky')
+	})
+
 	// --- Visibility tests ---
 
 	it('does not show remove buttons when onremove is not provided', async () => {

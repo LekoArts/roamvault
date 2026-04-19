@@ -19,6 +19,40 @@ describe('itemList', () => {
 		await expect.element(screen.getByText('Day 3')).toBeVisible()
 	})
 
+	it('renders activities sorted alphabetically', async () => {
+		await render(ItemList, {
+			props: {
+				label: 'Activities',
+				items: [
+					{ name: 'Zoo', path: 'a', frontmatter: { startDate: '2026-03-20' } },
+					{ name: 'Aquarium', path: 'b', frontmatter: { startDate: '2026-03-10' } },
+				],
+			},
+		})
+
+		const itemNames = Array.from(document.querySelectorAll('.item-name'), node => node.textContent)
+		expect(itemNames).toEqual(['Aquarium', 'Zoo'])
+	})
+
+	it('shows an indicator for assigned items', async () => {
+		await render(ItemList, {
+			props: {
+				label: 'Activities',
+				assignedNames: ['Museum'],
+				items: [
+					{ name: 'Museum', path: 'a1', frontmatter: { Location: 'Rome' } },
+					{ name: 'Park', path: 'a2', frontmatter: { Location: 'Rome' } },
+				],
+			},
+		})
+
+		const assignedItem = document.querySelector('.item-assigned .item-name')
+		expect(assignedItem?.textContent).toBe('Museum')
+		const indicators = document.querySelectorAll('.assignment-indicator')
+		expect(indicators.length).toBe(1)
+		expect(indicators[0]?.textContent).toBe('•')
+	})
+
 	it('shows empty state when no items', async () => {
 		const screen = await render(ItemList, {
 			props: {

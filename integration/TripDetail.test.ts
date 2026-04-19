@@ -11,8 +11,11 @@ vi.mock('../src/lib/stores/ui.svelte', () => ({
 			type: 'Travel_Advanced',
 			path: 'Travel/2026/Rome.md',
 			frontmatter: { startDate: '2026-03-10', endDate: '2026-03-20', Persons: ['A', 'B'] },
-			planning: [{ name: 'Day 1', path: 'p1', frontmatter: { startDate: '2026-03-10' } }],
-			activities: [{ name: 'Museum', path: 'a1', frontmatter: { startDate: '2026-03-11' } }],
+			planning: [{ name: 'Day 1', path: 'p1', frontmatter: { startDate: '2026-03-10', Activities: ['[[Museum]]'] } }],
+			activities: [
+				{ name: 'Museum', path: 'a1', frontmatter: { startDate: '2026-03-11' } },
+				{ name: 'Park', path: 'a2', frontmatter: { startDate: '2026-03-12' } },
+			],
 		},
 		navigate: vi.fn(),
 		openCreateItemModal: vi.fn(),
@@ -37,5 +40,8 @@ describe('tripDetail', () => {
 		const itemNames = document.querySelectorAll('.item-name')
 		const museumItem = [...itemNames].find(el => el.textContent === 'Museum')
 		expect(museumItem).toBeDefined()
+		const assignedItem = document.querySelector('.item-assigned .item-name')
+		expect(assignedItem?.textContent).toBe('Museum')
+		expect(document.querySelectorAll('.assignment-indicator')).toHaveLength(1)
 	})
 })

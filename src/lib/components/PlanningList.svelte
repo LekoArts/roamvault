@@ -106,7 +106,12 @@
 
 	function getSelectedActivity(item: SubItem): string {
 		const available = getMeta(item).available
-		return selectedActivityByPath[item.path] ?? available[0]?.name ?? ''
+		const selected = selectedActivityByPath[item.path]
+
+		if (selected && available.some(activity => activity.name === selected))
+			return selected
+
+		return available[0]?.name ?? ''
 	}
 
 	function setSelectedActivity(item: SubItem, value: string) {
@@ -115,7 +120,12 @@
 
 	function getSelectedDay(item: SubItem): string {
 		const allDays = getMeta(item).allDays
-		return selectedDayByPath[item.path] ?? allDays[0] ?? ''
+		const selected = selectedDayByPath[item.path]
+
+		if (selected && allDays.includes(selected))
+			return selected
+
+		return allDays[0] ?? ''
 	}
 
 	function setSelectedDay(item: SubItem, value: string) {
@@ -434,7 +444,6 @@
 		display: inline-flex;
 		align-items: center;
 		gap: var(--space-2);
-		font-size: 0.78rem;
 		color: var(--color-text-muted);
 		white-space: nowrap;
 	}
@@ -449,8 +458,8 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: 44px;
-		height: 44px;
+		width: 25px;
+		height: 25px;
 		padding: 0;
 		border: none;
 		background: none;

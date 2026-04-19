@@ -6,13 +6,18 @@
 	const {
 		items,
 		label,
+		assignedNames = [],
 	}: {
 		items: SubItem[]
 		label: string
+		assignedNames?: string[]
 	} = $props()
 
 	const sorted = $derived(
 		items.toSorted((a, b) => {
+			if (label === 'Activities')
+				return a.name.localeCompare(b.name)
+
 			const aDate = String(a.frontmatter.startDate ?? '')
 			const bDate = String(b.frontmatter.startDate ?? '')
 			return aDate.localeCompare(bDate)
@@ -40,6 +45,11 @@
 	})
 
 	const ungroupedItems = $derived(sorted.filter(item => !item.frontmatter.Location))
+	const assignedNameSet = $derived(new Set(assignedNames))
+
+	function isAssigned(item: SubItem): boolean {
+		return assignedNameSet.has(item.name)
+	}
 </script>
 
 <div class='item-list'>
@@ -55,7 +65,10 @@
 					</p>
 					<ul>
 						{#each locationItems as item (item.path)}
-							<li class='item'>
+							<li class='item' class:item-assigned={isAssigned(item)}>
+								{#if isAssigned(item)}
+									<span class='assignment-indicator' aria-label='Assigned to planning'>•</span>
+								{/if}
 								<span class='item-name'>{item.name}</span>
 								{#if item.frontmatter.startDate}
 									<span class='item-date'>
@@ -75,7 +88,10 @@
 		{#if ungroupedItems.length > 0}
 			<ul>
 				{#each ungroupedItems as item (item.path)}
-					<li class='item'>
+					<li class='item' class:item-assigned={isAssigned(item)}>
+						{#if isAssigned(item)}
+							<span class='assignment-indicator' aria-label='Assigned to planning'>•</span>
+						{/if}
 						<span class='item-name'>{item.name}</span>
 						<span class='item-meta'>
 							{#if item.frontmatter.Location}
@@ -144,6 +160,7 @@
 	}
 
 	.item {
+		position: relative;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -165,6 +182,20 @@
 
 	.item:hover {
 		background: var(--color-bg-hover);
+	}
+
+	.assignment-indicator {
+		position: absolute;
+		top: var(--space-2);
+		right: var(--space-3);
+		font-size: 1.1rem;
+		line-height: 1;
+		color: var(--color-success);
+		user-select: none;
+	}
+
+	.item-assigned .item-name {
+		padding-right: var(--space-6);
 	}
 
 	.item-name {

@@ -82,6 +82,21 @@
 			{ label: 'Activities section is embedded', matched: metadata.hasActivitiesBase },
 		]
 	})
+
+	const assignedActivityNames = $derived.by(() => {
+		const names = new Set<string>()
+
+		for (const item of trip.planning ?? []) {
+			const raw = item.frontmatter.Activities
+			if (!Array.isArray(raw))
+				continue
+
+			for (const link of raw)
+				names.add(stripWikiLink(String(link)))
+		}
+
+		return [...names]
+	})
 </script>
 
 <div class='trip-detail'>
@@ -183,7 +198,7 @@
 						New Activity
 					</button>
 				</div>
-				<ItemList items={trip.activities ?? []} label='Activities' />
+				<ItemList items={trip.activities ?? []} label='Activities' assignedNames={assignedActivityNames} />
 			</section>
 		</div>
 	{:else if trip.type === 'Travel_Roadtrip'}
